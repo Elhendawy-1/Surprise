@@ -834,10 +834,20 @@ const App = {
     const recipientView = document.getElementById('recipient-view');
     recipientView.style.display = 'block';
 
-    // Apply gift language (hides the creator language toggle)
+    // Apply gift language. The toggle stays visible on the gift page too,
+    // so the birthday person can switch languages (their own words stay
+    // exactly as the sender wrote them).
+    this.lastRecipientData = data;
     this.state.lang = data.lang === 'ar' ? 'ar' : 'en';
     const langToggle = document.getElementById('lang-toggle');
-    if (langToggle) langToggle.style.display = 'none';
+    if (langToggle) {
+      langToggle.style.display = '';
+      langToggle.onclick = () => {
+        this.state.lang = this.state.lang === 'ar' ? 'en' : 'ar';
+        this.applyLang();
+        this.refreshRecipientLang();
+      };
+    }
     this.applyLang();
 
     // Apply theme
@@ -901,34 +911,7 @@ const App = {
     document.getElementById('recipient-footer').textContent = Generator.getFooter(data);
 
     // Birthday details with a live ticking countdown
-    const details = Generator.getOccasionDetails(data);
-    const dob = data.fields && data.fields.dob;
-    if (dob && !isNaN(new Date(dob).getTime())) {
-      const info = Generator.getBirthdayInfo(dob);
-      const lang = this.state.lang || 'en';
-      const turning = lang === 'ar'
-        ? `${t('turningWord', lang)} ${info ? info.age + 1 : ''} سنوات`
-        : `${t('turningWord', lang)} ${info ? info.age + 1 : ''}`;
-      document.getElementById('recipient-details').style.display = 'block';
-      document.getElementById('recipient-details-content').innerHTML = `
-        <div class="detail-label">${t('cdLabel', lang)}</div>
-        <div class="detail-value">${turning}</div>
-        <div class="countdown-grid">
-          <div class="countdown-box"><div class="countdown-num" id="cd-d">--</div><div class="countdown-label">${t('cdDays', lang)}</div></div>
-          <div class="countdown-box"><div class="countdown-num" id="cd-h">--</div><div class="countdown-label">${t('cdHours', lang)}</div></div>
-          <div class="countdown-box"><div class="countdown-num" id="cd-m">--</div><div class="countdown-label">${t('cdMins', lang)}</div></div>
-          <div class="countdown-box"><div class="countdown-num" id="cd-s">--</div><div class="countdown-label">${t('cdSecs', lang)}</div></div>
-        </div>
-      `;
-      this.startBirthdayCountdown(dob);
-    } else if (details) {
-      document.getElementById('recipient-details').style.display = 'block';
-      document.getElementById('recipient-details-content').innerHTML = `
-        <div class="detail-label">Special Details</div>
-        <div class="detail-value"></div>
-      `;
-      document.querySelector('#recipient-details-content .detail-value').textContent = details;
-    }
+    this.renderRecipientDetails(data);
 
     // Music: browsers block autoplay, so show a clear tap-to-play
     // prompt. The first tap starts the song for sure.
@@ -987,10 +970,55 @@ const App = {
     });
   },
 
+  // Re-render translatable gift content after a language switch
+  // on the gift page (sender-written texts stay untouched).
+  refreshRecipientLang() {
+    const data = this.lastRecipientData;
+    if (!data) return;
+    data.lang = this.state.lang;
+    document.getElementById('recipient-greeting').textContent = Generator.getGreeting(data);
+    document.getElementById('recipient-footer').textContent = Generator.getFooter(data);
+    this.renderRecipientDetails(data);
+  },
+
+  // Birthday details block (countdown or plain text)
+  renderRecipientDetails(data) {
+    data.lang = this.state.lang || data.lang || 'en';
+    const details = Generator.getOccasionDetails(data);
+    const dob = data.fields && data.fields.dob;
+    if (dob && !isNaN(new Date(dob).getTime())) {
+      const info = Generator.getBirthdayInfo(dob);
+      const lang = this.state.lang || 'en';
+      const turning = lang === 'ar'
+        ? `${t('turningWord', lang)} ${info ? info.age + 1 : ''} سنوات`
+        : `${t('turningWord', lang)} ${info ? info.age + 1 : ''}`;
+      document.getElementById('recipient-details').style.display = 'block';
+      document.getElementById('recipient-details-content').innerHTML = `
+        <div class="detail-label">${t('cdLabel', lang)}</div>
+        <div class="detail-value">${turning}</div>
+        <div class="countdown-grid">
+          <div class="countdown-box"><div class="countdown-num" id="cd-d">--</div><div class="countdown-label">${t('cdDays', lang)}</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-h">--</div><div class="countdown-label">${t('cdHours', lang)}</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-m">--</div><div class="countdown-label">${t('cdMins', lang)}</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-s">--</div><div class="countdown-label">${t('cdSecs', lang)}</div></div>
+        </div>
+      `;
+      this.startBirthdayCountdown(dob);
+    } else if (details) {
+      document.getElementById('recipient-details').style.display = 'block';
+      document.getElementById('recipient-details-content').innerHTML = `
+        <div class="detail-label">${t('specialDetails', this.state.lang)}</div>
+        <div class="detail-value"></div>
+      `;
+      document.querySelector('#recipient-details-content .detail-value').textContent = details;
+    }
+  },
+
   // Live ticking countdown to the next birthday (updates every second)
   startBirthdayCountdown(dob) {
     const birthDate = new Date(dob);
     if (isNaN(birthDate.getTime())) return;
+    if (this.countdownTimer) clearInterval(this.countdownTimer);
     const set = (id, v) => {
       const el = document.getElementById(id);
       if (el) el.textContent = String(v).padStart(2, '0');
@@ -1007,7 +1035,8 @@ const App = {
         set('cd-d', 0); set('cd-h', 0); set('cd-m', 0); set('cd-s', 0);
         const label = document.querySelector('#recipient-details-content .detail-label');
         if (label) label.textContent = t('todayText', this.state.lang);
-        clearInterval(timer);
+        if (this.countdownTimer) clearInterval(this.countdownTimer);
+        this.countdownTimer = null;
         return;
       }
       const s = Math.floor(diff / 1000);
@@ -1016,7 +1045,7 @@ const App = {
       set('cd-m', Math.floor(s % 3600 / 60));
       set('cd-s', s % 60);
     };
-    const timer = setInterval(update, 1000);
+    this.countdownTimer = setInterval(update, 1000);
     update();
   },
 

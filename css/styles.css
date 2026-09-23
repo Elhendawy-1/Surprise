@@ -1220,7 +1220,8 @@ body {
   position: fixed;
   bottom: 2rem;
   left: 2rem;
-  z-index: 998;
+  /* Above the full-screen gift overlay (z-index 1000) */
+  z-index: 1002;
   border: 2px solid var(--card-border);
   border-radius: 50px;
   padding: 0.6rem 1.2rem;
@@ -1267,7 +1268,8 @@ html[dir="rtl"] .photo-slot .btn-remove {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  z-index: 999;
+  /* Above the full-screen gift overlay (z-index 1000) */
+  z-index: 1002;
 }
 
 .btn-music {
