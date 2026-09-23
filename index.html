@@ -4,12 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Send Love & Warmth</title>
-  <link rel="stylesheet" href="css/themes.css?v=12">
-  <link rel="stylesheet" href="css/styles.css?v=12">
-  <link rel="stylesheet" href="css/animations.css?v=12">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:wght@400;500;600&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/themes.css?v=13">
+  <link rel="stylesheet" href="css/styles.css?v=13">
+  <link rel="stylesheet" href="css/animations.css?v=13">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:wght@400;500;600&family=Dancing+Script:wght@400;700&family=Cairo:wght@400;600;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
+  <button id="lang-toggle" class="lang-toggle">عربي</button>
 
   <!-- SECTION 1: Hero / Landing -->
   <section id="section-hero" class="section active">
@@ -21,51 +23,51 @@
         <span class="ampersand">&amp;</span>
         <span class="script-text">Warmth</span>
       </h1>
-      <p class="hero-subtitle">Create a personalized digital birthday gift for someone special</p>
-      <button id="btn-start" class="btn-primary">Create a Birthday Gift</button>
+      <p class="hero-subtitle" data-i18n="heroSubtitle">Create a personalized digital birthday gift for someone special</p>
+      <button id="btn-start" class="btn-primary" data-i18n="heroCta">Create a Birthday Gift</button>
     </div>
   </section>
 
   <!-- SECTION 2: Choose Relationship -->
   <section id="section-relationship" class="section">
     <div class="section-inner">
-      <h2 class="section-title">Who is this for?</h2>
-      <p class="section-subtitle">Choose a relationship</p>
+      <h2 class="section-title" data-i18n="relTitle">Who is this for?</h2>
+      <p class="section-subtitle" data-i18n="relSubtitle">Choose a relationship</p>
       <div class="card-grid" id="relationship-grid">
         <button class="card" data-relationship="mom">
           <span class="card-icon">&#127801;</span>
-          <span class="card-label">Mom</span>
+          <span class="card-label" data-i18n="relMom">Mom</span>
         </button>
         <button class="card" data-relationship="dad">
           <span class="card-icon">&#127775;</span>
-          <span class="card-label">Dad</span>
+          <span class="card-label" data-i18n="relDad">Dad</span>
         </button>
         <button class="card" data-relationship="sister">
           <span class="card-icon">&#127800;</span>
-          <span class="card-label">Sister</span>
+          <span class="card-label" data-i18n="relSister">Sister</span>
         </button>
         <button class="card" data-relationship="brother">
           <span class="card-icon">&#128102;</span>
-          <span class="card-label">Brother</span>
+          <span class="card-label" data-i18n="relBrother">Brother</span>
         </button>
         <button class="card" data-relationship="aunt">
           <span class="card-icon">&#127799;</span>
-          <span class="card-label">Aunt</span>
+          <span class="card-label" data-i18n="relAunt">Aunt</span>
         </button>
         <button class="card" data-relationship="friend">
           <span class="card-icon">&#128149;</span>
-          <span class="card-label">Friend</span>
+          <span class="card-label" data-i18n="relFriend">Friend</span>
         </button>
         <button class="card" data-relationship="other">
           <span class="card-icon">&#10024;</span>
-          <span class="card-label">Other</span>
+          <span class="card-label" data-i18n="relOther">Other</span>
         </button>
       </div>
       <div class="custom-relationship-wrap" id="custom-relationship-wrap" style="display:none;">
-        <label for="custom-relationship">Who is this gift for?</label>
+        <label for="custom-relationship" data-i18n="customRelLabel">Who is this gift for?</label>
         <div class="custom-relationship-row">
-          <input type="text" id="custom-relationship" placeholder="e.g., Grandma, Cousin, Teacher..." maxlength="30">
-          <button type="button" id="btn-custom-continue" class="btn-primary">Continue</button>
+          <input type="text" id="custom-relationship" placeholder="e.g., Grandma, Cousin, Teacher..." data-i18n-ph="customRelPh" maxlength="30">
+          <button type="button" id="btn-custom-continue" class="btn-primary" data-i18n="customContinue">Continue</button>
         </div>
       </div>
     </div>
@@ -74,23 +76,23 @@
   <!-- SECTION 3: Customize (Birthday only) -->
   <section id="section-customize" class="section">
     <div class="section-inner">
-      <h2 class="section-title">Personalize the birthday gift</h2>
-      <p class="section-subtitle">Fill in the birthday details below</p>
+      <h2 class="section-title" data-i18n="customTitle">Personalize the birthday gift</h2>
+      <p class="section-subtitle" data-i18n="customSubtitle">Fill in the birthday details below</p>
 
       <form id="customize-form" class="customize-form" onsubmit="return false;">
         <div class="form-group">
-          <label for="recipient-name">Birthday person's name</label>
-          <input type="text" id="recipient-name" placeholder="Enter their name" required>
+          <label for="recipient-name" data-i18n="nameLabel">Birthday person's name</label>
+          <input type="text" id="recipient-name" placeholder="Enter their name" data-i18n-ph="namePh" required>
         </div>
 
         <div class="form-group">
-          <label for="birthday-date">Date of Birth</label>
+          <label for="birthday-date" data-i18n="dobLabel">Date of Birth</label>
           <input type="date" id="birthday-date">
         </div>
 
         <div class="form-group">
-          <label>Photos (optional) - Add up to 5 images</label>
-          <p class="form-hint">3 ways to add a photo: upload a file, paste an image link (direct links, Google Drive and Dropbox share links all work — you will see a green check when it loads), or pick from the <strong>site gallery</strong> (upload images to the <strong>assets/photos</strong> folder in your GitHub repo — those always show in the final gift). Add your caption under each photo.</p>
+          <label data-i18n="photosLabel">Photos (optional) - Add up to 5 images</label>
+          <p class="form-hint" data-i18n-html="photosHintHtml">3 ways to add a photo: upload a file, paste an image link (direct links, Google Drive and Dropbox share links all work — you will see a green check when it loads), or pick from the <strong>site gallery</strong> (upload images to the <strong>assets/photos</strong> folder in your GitHub repo — those always show in the final gift). Add your caption under each photo.</p>
           <div class="gallery-picker" id="gallery-picker" style="display:none;">
             <div class="gallery-picker-header">
               <span id="gallery-picker-status">Site photos</span>
@@ -111,9 +113,9 @@
                   <span>+ Add Photo</span>
                 </div>
               </div>
-              <input type="text" class="photo-url-input" data-slot="0" placeholder="Or paste image URL here">
-              <button type="button" class="photo-gallery-btn" data-slot="0">🖼 Choose from site gallery</button>
-              <input type="text" class="photo-text-input" data-slot="0" placeholder="Caption (optional)">
+              <input type="text" class="photo-url-input" data-slot="0" placeholder="Or paste image URL here" data-i18n-ph="urlPh">
+              <button type="button" class="photo-gallery-btn" data-i18n="galleryBtn" data-slot="0">🖼 Choose from site gallery</button>
+              <input type="text" class="photo-text-input" data-i18n-ph="captionPh" data-slot="0" placeholder="Caption (optional)">
             </div>
             <div class="photo-slot" data-slot="1">
               <div class="photo-upload-area" id="photo-upload-area-1">
@@ -127,9 +129,9 @@
                   <span>+ Add Photo</span>
                 </div>
               </div>
-              <input type="text" class="photo-url-input" data-slot="1" placeholder="Or paste image URL here">
-              <button type="button" class="photo-gallery-btn" data-slot="1">🖼 Choose from site gallery</button>
-              <input type="text" class="photo-text-input" data-slot="1" placeholder="Caption (optional)">
+              <input type="text" class="photo-url-input" data-slot="1" placeholder="Or paste image URL here" data-i18n-ph="urlPh">
+              <button type="button" class="photo-gallery-btn" data-i18n="galleryBtn" data-slot="1">🖼 Choose from site gallery</button>
+              <input type="text" class="photo-text-input" data-i18n-ph="captionPh" data-slot="1" placeholder="Caption (optional)">
             </div>
             <div class="photo-slot" data-slot="2">
               <div class="photo-upload-area" id="photo-upload-area-2">
@@ -143,9 +145,9 @@
                   <span>+ Add Photo</span>
                 </div>
               </div>
-              <input type="text" class="photo-url-input" data-slot="2" placeholder="Or paste image URL here">
-              <button type="button" class="photo-gallery-btn" data-slot="2">🖼 Choose from site gallery</button>
-              <input type="text" class="photo-text-input" data-slot="2" placeholder="Caption (optional)">
+              <input type="text" class="photo-url-input" data-slot="2" placeholder="Or paste image URL here" data-i18n-ph="urlPh">
+              <button type="button" class="photo-gallery-btn" data-i18n="galleryBtn" data-slot="2">🖼 Choose from site gallery</button>
+              <input type="text" class="photo-text-input" data-i18n-ph="captionPh" data-slot="2" placeholder="Caption (optional)">
             </div>
             <div class="photo-slot" data-slot="3">
               <div class="photo-upload-area" id="photo-upload-area-3">
@@ -159,9 +161,9 @@
                   <span>+ Add Photo</span>
                 </div>
               </div>
-              <input type="text" class="photo-url-input" data-slot="3" placeholder="Or paste image URL here">
-              <button type="button" class="photo-gallery-btn" data-slot="3">🖼 Choose from site gallery</button>
-              <input type="text" class="photo-text-input" data-slot="3" placeholder="Caption (optional)">
+              <input type="text" class="photo-url-input" data-slot="3" placeholder="Or paste image URL here" data-i18n-ph="urlPh">
+              <button type="button" class="photo-gallery-btn" data-i18n="galleryBtn" data-slot="3">🖼 Choose from site gallery</button>
+              <input type="text" class="photo-text-input" data-i18n-ph="captionPh" data-slot="3" placeholder="Caption (optional)">
             </div>
             <div class="photo-slot" data-slot="4">
               <div class="photo-upload-area" id="photo-upload-area-4">
@@ -175,75 +177,75 @@
                   <span>+ Add Photo</span>
                 </div>
               </div>
-              <input type="text" class="photo-url-input" data-slot="4" placeholder="Or paste image URL here">
-              <button type="button" class="photo-gallery-btn" data-slot="4">🖼 Choose from site gallery</button>
-              <input type="text" class="photo-text-input" data-slot="4" placeholder="Caption (optional)">
+              <input type="text" class="photo-url-input" data-slot="4" placeholder="Or paste image URL here" data-i18n-ph="urlPh">
+              <button type="button" class="photo-gallery-btn" data-i18n="galleryBtn" data-slot="4">🖼 Choose from site gallery</button>
+              <input type="text" class="photo-text-input" data-i18n-ph="captionPh" data-slot="4" placeholder="Caption (optional)">
             </div>
           </div>
         </div>
 
         <div class="form-group">
-          <label>Message</label>
+          <label data-i18n="msgLabel">Message</label>
           <div class="toggle-group">
-            <button type="button" class="toggle-btn active" data-mode="auto">Auto-generate</button>
-            <button type="button" class="toggle-btn" data-mode="custom">Write my own</button>
+            <button type="button" class="toggle-btn active" data-mode="auto" data-i18n="autoBtn">Auto-generate</button>
+            <button type="button" class="toggle-btn" data-mode="custom" data-i18n="customBtn">Write my own</button>
           </div>
         </div>
 
         <div class="form-group" id="auto-message-group">
-          <label>Generated Message</label>
+          <label data-i18n="generatedLabel">Generated Message</label>
           <div class="message-preview" id="auto-message-preview"></div>
         </div>
 
         <div class="form-group" id="custom-message-group" style="display:none;">
-          <label for="custom-message">Your Message</label>
-          <textarea id="custom-message" rows="6" placeholder="Write your heartfelt message here..."></textarea>
+          <label for="custom-message" data-i18n="yourMessage">Your Message</label>
+          <textarea id="custom-message" rows="6" placeholder="Write your heartfelt message here..." data-i18n-ph="customPh"></textarea>
         </div>
 
         <div class="form-group">
-          <label>Choose a Theme</label>
+          <label data-i18n="themeLabel">Choose a Theme</label>
           <div class="theme-grid" id="theme-grid">
             <button type="button" class="theme-swatch active" data-theme="classic" title="Classic Romantic">
               <span class="swatch-color" style="background: linear-gradient(135deg, #e63946, #ffd700);"></span>
-              <span class="swatch-label">Classic</span>
+              <span class="swatch-label" data-i18n="themeClassic">Classic</span>
             </button>
             <button type="button" class="theme-swatch" data-theme="soft" title="Soft Romantic">
               <span class="swatch-color" style="background: linear-gradient(135deg, #f8a4c8, #fcd5ce);"></span>
-              <span class="swatch-label">Soft</span>
+              <span class="swatch-label" data-i18n="themeSoft">Soft</span>
             </button>
             <button type="button" class="theme-swatch" data-theme="deep" title="Deep Romantic">
               <span class="swatch-color" style="background: linear-gradient(135deg, #800020, #d4af37);"></span>
-              <span class="swatch-label">Deep</span>
+              <span class="swatch-label" data-i18n="themeDeep">Deep</span>
             </button>
             <button type="button" class="theme-swatch" data-theme="dark" title="Dark Romantic">
               <span class="swatch-color" style="background: linear-gradient(135deg, #2d0a0a, #c9a0dc);"></span>
-              <span class="swatch-label">Dark</span>
+              <span class="swatch-label" data-i18n="themeDark">Dark</span>
             </button>
             <button type="button" class="theme-swatch" data-theme="elegant" title="Elegant">
               <span class="swatch-color" style="background: linear-gradient(135deg, #333333, #d4af37);"></span>
-              <span class="swatch-label">Elegant</span>
+              <span class="swatch-label" data-i18n="themeElegant">Elegant</span>
             </button>
             <button type="button" class="theme-swatch" data-theme="warm" title="Warm and Cozy">
               <span class="swatch-color" style="background: linear-gradient(135deg, #d4a373, #e9edc9);"></span>
-              <span class="swatch-label">Warm</span>
+              <span class="swatch-label" data-i18n="themeWarm">Warm</span>
             </button>
           </div>
         </div>
 
         <div class="form-group">
-          <label>Background Music</label>
+          <label data-i18n="musicLabel">Background Music</label>
           <div class="music-toggle">
             <label class="switch">
               <input type="checkbox" id="music-toggle" checked>
               <span class="slider"></span>
             </label>
-            <span class="toggle-label">Include background music</span>
+            <span class="toggle-label" data-i18n="musicToggle">Include background music</span>
           </div>
         </div>
 
         <div class="form-actions">
-          <button type="button" id="btn-back-customize" class="btn-secondary">Back</button>
-          <button type="button" id="btn-preview" class="btn-primary">Preview Gift</button>
+          <button type="button" id="btn-back-customize" class="btn-secondary" data-i18n="back">Back</button>
+          <button type="button" id="btn-preview" class="btn-primary" data-i18n="previewBtn">Preview Gift</button>
         </div>
       </form>
     </div>
@@ -252,14 +254,14 @@
   <!-- SECTION 4: Preview -->
   <section id="section-preview" class="section">
     <div class="section-inner">
-      <h2 class="section-title">Preview Your Birthday Gift</h2>
-      <p class="section-subtitle">This is what the birthday person will see</p>
+      <h2 class="section-title" data-i18n="previewTitle">Preview Your Birthday Gift</h2>
+      <p class="section-subtitle" data-i18n="previewSubtitle">This is what the birthday person will see</p>
       <div class="preview-frame" id="preview-frame">
         <div class="preview-content" id="preview-content"></div>
       </div>
       <div class="form-actions">
-        <button type="button" id="btn-back-preview" class="btn-secondary">Back to Edit</button>
-        <button type="button" id="btn-generate" class="btn-primary">Generate Link</button>
+        <button type="button" id="btn-back-preview" class="btn-secondary" data-i18n="backEdit">Back to Edit</button>
+        <button type="button" id="btn-generate" class="btn-primary" data-i18n="generateBtn">Generate Link</button>
       </div>
     </div>
   </section>
@@ -267,20 +269,20 @@
   <!-- SECTION 5: Share -->
   <section id="section-share" class="section">
     <div class="section-inner">
-      <h2 class="section-title">Your Birthday Gift is Ready!</h2>
-      <p class="section-subtitle">Share this link with the birthday person</p>
+      <h2 class="section-title" data-i18n="shareTitle">Your Birthday Gift is Ready!</h2>
+      <p class="section-subtitle" data-i18n="shareSubtitle">Share this link with the birthday person</p>
       <div class="share-box">
         <div class="share-link-container">
           <input type="text" id="share-link" class="share-link" readonly>
-          <button type="button" id="btn-copy" class="btn-copy">Copy</button>
+          <button type="button" id="btn-copy" class="btn-copy" data-i18n="copyBtn">Copy</button>
         </div>
         <div class="share-qr" id="share-qr">
           <img id="qr-image" alt="QR Code" width="300" height="300">
-          <div><a id="qr-download" class="qr-download" download="birthday-gift-qr.png">Download QR code</a></div>
+          <div><a id="qr-download" class="qr-download" download="birthday-gift-qr.png" data-i18n="downloadQr">Download QR code</a></div>
         </div>
         <div class="share-actions">
-          <button type="button" id="btn-open-link" class="btn-secondary">Open in New Tab</button>
-          <button type="button" id="btn-new-gift" class="btn-primary">Create Another Gift</button>
+          <button type="button" id="btn-open-link" class="btn-secondary" data-i18n="openBtn">Open in New Tab</button>
+          <button type="button" id="btn-new-gift" class="btn-primary" data-i18n="newBtn">Create Another Gift</button>
         </div>
       </div>
     </div>
@@ -298,7 +300,7 @@
         </div>
         <div class="recipient-greeting" id="recipient-greeting"></div>
         <div class="recipient-scroll-hint">
-          <span>Scroll down to read your message</span>
+          <span data-i18n="scrollHint">Scroll down to read your message</span>
           <div class="scroll-arrow">&#8595;</div>
         </div>
       </div>
@@ -307,8 +309,8 @@
     <!-- Birthday Cake Section -->
     <div class="recipient-section recipient-cake-section">
       <div class="cake-wrap reveal">
-        <h3 class="cake-heading">Make a Wish</h3>
-        <p class="cake-sub">Tap the candles to blow them out</p>
+        <h3 class="cake-heading" data-i18n="cakeHeading">Make a Wish</h3>
+        <p class="cake-sub" data-i18n="cakeSub">Tap the candles to blow them out</p>
         <div class="cake-scene">
           <div class="candles-row" id="candles-row">
             <button type="button" class="candle" aria-label="Blow out candle"><span class="flame"></span><span class="smoke"></span><span class="wick"></span><span class="stick"></span></button>
@@ -321,10 +323,10 @@
           <div class="cake-body"></div>
           <div class="cake-plate"></div>
         </div>
-        <div class="wish-text" id="wish-text" style="display:none;">Your wish is on its way ✨</div>
+        <div class="wish-text" id="wish-text" style="display:none;" data-i18n="wishText">Your wish is on its way ✨</div>
         <div class="cake-actions">
-          <button type="button" id="btn-blow" class="btn-primary">Blow Out the Candles</button>
-          <button type="button" id="btn-relight" class="btn-secondary" style="display:none;">Relight Candles</button>
+          <button type="button" id="btn-blow" class="btn-primary" data-i18n="blowBtn">Blow Out the Candles</button>
+          <button type="button" id="btn-relight" class="btn-secondary" style="display:none;" data-i18n="relightBtn">Relight Candles</button>
         </div>
       </div>
     </div>
@@ -332,8 +334,8 @@
     <!-- Photo Memories Section -->
     <div class="recipient-section recipient-gallery-section" id="recipient-gallery" style="display:none;">
       <div class="recipient-gallery-wrap">
-        <h3 class="recipient-gallery-heading reveal">Sweet Memories</h3>
-        <p class="recipient-gallery-sub reveal">Chosen with love, just for you</p>
+        <h3 class="recipient-gallery-heading reveal" data-i18n="galleryHeading">Sweet Memories</h3>
+        <p class="recipient-gallery-sub reveal" data-i18n="gallerySub">Chosen with love, just for you</p>
         <div class="recipient-gallery" id="recipient-gallery-grid"></div>
       </div>
     </div>
@@ -355,7 +357,7 @@
     <div class="recipient-section recipient-closing-section">
       <div class="recipient-closing">
         <div class="recipient-closing-hearts">&#10084; &#10084; &#10084;</div>
-        <div class="recipient-closing-text" id="recipient-closing-text">Made with love</div>
+        <div class="recipient-closing-text" id="recipient-closing-text" data-i18n="closingText">Made with love</div>
       </div>
     </div>
   </div>
@@ -371,18 +373,19 @@
   </div>
 
   <!-- Tap-to-play music prompt (browsers block autoplay until a tap) -->
-  <button id="music-prompt" class="music-prompt" style="display:none;">&#127925; Tap to play music</button>
+  <button id="music-prompt" class="music-prompt" style="display:none;">&#127925; <span data-i18n="musicPrompt">Tap to play music</span></button>
 
   <!-- Loading Overlay -->
   <div class="loading-overlay" id="loading-overlay" style="display:none;">
     <div class="loading-spinner"></div>
-    <p class="loading-text">Creating your gift...</p>
+    <p class="loading-text" data-i18n="loadingTitle">Creating your gift...</p>
     <p class="loading-sub" id="loading-status"></p>
   </div>
 
-  <script src="js/animations.js?v=12"></script>
-  <script src="js/generator.js?v=12"></script>
-  <script src="js/share.js?v=12"></script>
-  <script src="js/app.js?v=12"></script>
+  <script src="js/animations.js?v=13"></script>
+  <script src="js/generator.js?v=13"></script>
+  <script src="js/share.js?v=13"></script>
+  <script src="js/i18n.js?v=13"></script>
+  <script src="js/app.js?v=13"></script>
 </body>
 </html>

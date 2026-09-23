@@ -12,13 +12,51 @@ const Generator = {
     other: "Happy Birthday, {name}! Today is all about you. Thank you for being such a special part of my life - your kindness, laughter, and warmth mean more than you know. May this year bring you everything you deserve and more!"
   },
 
+  // Arabic birthday message templates
+  templatesAr: {
+    mom: "عيد ميلاد سعيد يا {name}! اليوم يومك، وأريدكِ أن تعرفي كم أنتِ غالية عليّ. بحبك وحنانك ودعمك الدائم صرتُ ما أنا عليه اليوم. أتمنى لكِ عامًا مليئًا بالسعادة والفرح الذي تستحقينه. أحبكِ أكثر من الكلمات!",
+    sister: "عيد ميلاد سعيد يا {name}! وجود أخت مثلك من أعظم هدايا الحياة. في كل ضحكة ودمعة ومغامرة، كنتِ بجانبي دائمًا. أتمنى لكِ يومًا رائعًا مثلك تمامًا!",
+    aunt: "عيد ميلاد سعيد يا {name}! أنتِ لست خالة فقط، بل أم ثانية ومرشدة وصديقة. حبك وتوجيهك على مر السنين يعني لي الكثير. أتمنى لكِ يومًا مميزًا مثلك!",
+    dad: "عيد ميلاد سعيد يا {name}! كنت بطلي منذ اليوم الأول. قوتك وحكمتك وحبك غير المشروط قادوني في الحياة. اليوم أحتفل بك وبكل ما أنت عليه. أحبك!",
+    friend: "عيد ميلاد سعيد يا {name}! صديق رائع مثلك نادر وثمين. شكرًا على كل الضحكات والدعم واللحظات التي لا تُنسى. إلى سنة أخرى رائعة من الصداقة!",
+    brother: "عيد ميلاد سعيد يا {name}! وجود أخ مثلك من أعظم هدايا الحياة. في كل ضحكة ومغامرة وتحدٍّ، كنت بجانبي دائمًا. أتمنى لك يومًا رائعًا مثلك!",
+    other: "عيد ميلاد سعيد يا {name}! اليوم كله لك. شكرًا لكونك جزءًا مميزًا من حياتي - لطفك وضحكتك ودفئك يعنون لي أكثر مما تعرف. أتمنى لك سنة تحقق لك كل ما تستحق وأكثر!"
+  },
+
+  greetingsAr: {
+    mom: "عيد ميلاد سعيد يا أغلى {name}!",
+    sister: "عيد ميلاد سعيد يا {name}!",
+    aunt: "عيد ميلاد سعيد يا {name}!",
+    dad: "عيد ميلاد سعيد يا {name}!",
+    friend: "عيد ميلاد سعيد يا {name}!",
+    brother: "عيد ميلاد سعيد يا {name}!",
+    other: "عيد ميلاد سعيد يا {name}!"
+  },
+
+  footersAr: {
+    mom: "بحبك يا أمي",
+    sister: "بحبك يا أختي",
+    aunt: "بحبك يا خالتي",
+    dad: "بحبك يا أبي",
+    friend: "مع حبي، صديقك",
+    brother: "بحبك يا أخي",
+    other: "مع كل الحب"
+  },
+
+  isAr(data) {
+    return data && data.lang === 'ar';
+  },
+
   // Generate a birthday message based on data
   generateMessage(data) {
     const { relationship, name } = data;
-    const template = this.templates[relationship];
+    const table = this.isAr(data) ? this.templatesAr : this.templates;
+    const template = table[relationship];
 
     if (!template) {
-      return `Happy Birthday, ${name}! Wishing you a wonderful day filled with love, laughter, and everything you deserve.`;
+      return this.isAr(data)
+        ? `عيد ميلاد سعيد يا ${name}! أتمنى لك يومًا رائعًا مليئًا بالحب والضحك وكل ما تستحق.`
+        : `Happy Birthday, ${name}! Wishing you a wonderful day filled with love, laughter, and everything you deserve.`;
     }
 
     return template.replace(/{name}/g, name);
@@ -27,6 +65,10 @@ const Generator = {
   // Get birthday greeting based on relationship
   getGreeting(data) {
     const { relationship, name } = data;
+    if (this.isAr(data)) {
+      const g = this.greetingsAr[relationship];
+      return g ? g.replace(/{name}/g, name) : `عيد ميلاد سعيد يا ${name}!`;
+    }
     const greetings = {
       mom: `Happy Birthday, dear ${name}!`,
       sister: `Happy Birthday, ${name}!`,
@@ -43,6 +85,9 @@ const Generator = {
   // Get footer text
   getFooter(data) {
     const { relationship } = data;
+    if (this.isAr(data)) {
+      return this.footersAr[relationship] || "مع حبي";
+    }
     const footers = {
       mom: "With all my love, your child",
       sister: "With love, your sibling",
@@ -81,6 +126,9 @@ const Generator = {
     if (fields && fields.dob) {
       const info = this.getBirthdayInfo(fields.dob);
       if (info) {
+        if (this.isAr(data)) {
+          return `سيُتم ${info.age + 1} سنوات! ${info.daysUntil === 0 ? 'اليوم هو اليوم!' : 'باقي ' + info.daysUntil + ' يوم على اليوم الكبير!'}`;
+        }
         return `Turning ${info.age + 1}! ${info.daysUntil === 0 ? 'Today is the day!' : info.daysUntil + ' days until the big day!'}`;
       }
     }

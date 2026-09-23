@@ -1215,6 +1215,53 @@ body {
   color: var(--text-light);
 }
 
+/* Language toggle (creator flow) */
+.lang-toggle {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  z-index: 998;
+  border: 2px solid var(--card-border);
+  border-radius: 50px;
+  padding: 0.6rem 1.2rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--card-bg);
+  box-shadow: 0 4px 15px var(--shadow);
+  cursor: pointer;
+  transition: border-color 0.3s ease, transform 0.2s ease;
+}
+
+.lang-toggle:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+/* Arabic fonts */
+html[lang="ar"] {
+  --font-heading: 'Aref Ruqaa', 'Playfair Display', serif;
+  --font-body: 'Cairo', 'Lora', sans-serif;
+  --font-script: 'Aref Ruqaa', 'Dancing Script', serif;
+}
+
+/* Right-to-left layout fixes */
+html[dir="rtl"] .customize-form,
+html[dir="rtl"] .custom-relationship-wrap {
+  text-align: right;
+}
+
+html[dir="rtl"] .btn-remove {
+  right: auto;
+  left: -8px;
+}
+
+html[dir="rtl"] .photo-slot .btn-remove {
+  right: auto;
+  left: 4px;
+}
+
 /* ===== Music Controls ===== */
 .music-controls {
   position: fixed;

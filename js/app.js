@@ -4,6 +4,7 @@ const App = {
   // Current state
   state: {
     currentSection: 'hero',
+    lang: 'en',
     relationship: null,
     customRelationship: '',
     occasion: 'birthday',
@@ -37,6 +38,7 @@ const App = {
 
     // Normal creator flow
     this.bindEvents();
+    this.applyLang();
     this.showSection('hero');
     Animations.startHeroAnimation();
   },
@@ -46,6 +48,12 @@ const App = {
     // Hero -> Start
     document.getElementById('btn-start').addEventListener('click', () => {
       this.showSection('relationship');
+    });
+
+    // Language toggle (creator flow)
+    document.getElementById('lang-toggle').addEventListener('click', () => {
+      this.state.lang = this.state.lang === 'ar' ? 'en' : 'ar';
+      this.applyLang();
     });
 
     // Relationship selection
@@ -167,8 +175,9 @@ const App = {
       const linkInput = document.getElementById('share-link');
       Share.copyToClipboard(linkInput.value).then(success => {
         const btn = document.getElementById('btn-copy');
-        btn.textContent = success ? 'Copied!' : 'Failed';
-        setTimeout(() => btn.textContent = 'Copy', 2000);
+        const lang = this.state.lang || 'en';
+        btn.textContent = success ? t('copiedBtn', lang) : 'Failed';
+        setTimeout(() => { btn.textContent = t('copyBtn', this.state.lang); }, 2000);
       });
     });
 
@@ -196,6 +205,26 @@ const App = {
     // Birthday date input triggers message regeneration
     const dobEl = document.getElementById('birthday-date');
     if (dobEl) dobEl.addEventListener('input', () => this.updateAutoMessage());
+  },
+
+  // Apply current language to all tagged static text + page direction
+  applyLang() {
+    const lang = this.state.lang || 'en';
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.textContent = t(el.dataset.i18n, lang);
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+      el.placeholder = t(el.dataset.i18nPh, lang);
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const key = el.dataset.i18nHtml;
+      el.innerHTML = (I18N[lang] && I18N[lang][key]) || I18N.en[key] || '';
+    });
+    const toggle = document.getElementById('lang-toggle');
+    if (toggle) toggle.textContent = lang === 'ar' ? 'EN' : 'عربي';
+    this.updateAutoMessage();
   },
 
   // Show a section
@@ -248,7 +277,7 @@ const App = {
     const input = document.getElementById('custom-relationship');
     const label = input ? input.value.trim() : '';
     if (!label) {
-      alert('Please type who this gift is for (e.g., Grandma, Cousin, Teacher).');
+      alert(t('alertLabel', this.state.lang));
       if (input) input.focus();
       return;
     }
@@ -260,16 +289,17 @@ const App = {
 
   // Handle photo upload for specific slot
   handlePhotoFile(file, slot) {
+    const lang = this.state.lang || 'en';
     if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file.');
+      alert(t('alertNotImage', lang));
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      alert('Image must be under 10MB.');
+      alert(t('alertTooBig', lang));
       return;
     }
     if (/heic|heif/i.test(file.type) || /\.hei[c f]$/i.test(file.name || '')) {
-      alert('This looks like an iPhone HEIC photo, which most browsers cannot display.\n\nFor best results: open the photo and take a screenshot, then use the screenshot instead.');
+      alert(t('alertHeic', lang));
     }
 
     this.state.photos[slot] = file;
@@ -318,30 +348,31 @@ const App = {
     if (!img || !preview || !placeholder) return;
     // If a file is selected, file preview wins - don't override
     if (this.state.photos[slot]) return;
+    const lang = this.state.lang || 'en';
     if (val && (val.startsWith('http://') || val.startsWith('https://'))) {
-      this.setUrlStatus(slot, true, 'Checking image...');
+      this.setUrlStatus(slot, true, t('statusChecking', lang));
       img.onerror = () => {
         preview.style.display = 'none';
         placeholder.style.display = 'flex';
-        this.setUrlStatus(slot, false, 'This link does not open an image. Use a direct image link, a Drive/Dropbox share link, or the site gallery.');
+        this.setUrlStatus(slot, false, t('statusBad', lang));
       };
       img.onload = () => {
         preview.style.display = 'block';
         placeholder.style.display = 'none';
-        this.setUrlStatus(slot, true, 'Image looks good - it will appear in the gift.');
+        this.setUrlStatus(slot, true, t('statusOk', lang));
       };
       img.src = val;
       // Trigger load check for cached images
       if (img.complete && img.naturalWidth > 0) {
         preview.style.display = 'block';
         placeholder.style.display = 'none';
-        this.setUrlStatus(slot, true, 'Image looks good - it will appear in the gift.');
+        this.setUrlStatus(slot, true, t('statusOk', lang));
       }
     } else {
       preview.style.display = 'none';
       placeholder.style.display = 'flex';
       img.removeAttribute('src');
-      this.setUrlStatus(slot, false, rawVal && rawVal.trim() ? 'That does not look like a link (must start with http).' : '');
+      this.setUrlStatus(slot, false, rawVal && rawVal.trim() ? t('statusNotLink', lang) : '');
     }
   },
 
@@ -381,7 +412,7 @@ const App = {
       return;
     }
 
-    status.textContent = 'Loading site photos...';
+    status.textContent = t('galleryLoading', this.state.lang);
     grid.innerHTML = '';
     fetch('https://api.github.com/repos/' + this.siteGallery.repo + '/contents/' + this.siteGallery.path)
       .then(r => {
@@ -395,7 +426,7 @@ const App = {
         this.renderGalleryPicker(imgs);
       })
       .catch(() => {
-        status.textContent = 'No site photos yet. Upload images to the assets/photos folder in your GitHub repo, then reopen this picker.';
+        status.textContent = t('galleryEmpty', this.state.lang);
       });
   },
 
@@ -403,11 +434,11 @@ const App = {
     const grid = document.getElementById('gallery-picker-grid');
     const status = document.getElementById('gallery-picker-status');
     if (!imgs.length) {
-      status.textContent = 'No site photos yet. Upload images to the assets/photos folder in your GitHub repo, then reopen this picker.';
+      status.textContent = t('galleryEmpty', this.state.lang);
       grid.innerHTML = '';
       return;
     }
-    status.textContent = 'Tap a photo to use it:';
+    status.textContent = t('galleryTap', this.state.lang);
     grid.innerHTML = '';
     imgs.forEach(f => {
       const btn = document.createElement('button');
@@ -456,6 +487,7 @@ const App = {
     const data = {
       relationship: this.state.relationship,
       occasion: 'birthday',
+      lang: this.state.lang,
       name: name,
       fields: { dob }
     };
@@ -526,6 +558,7 @@ const App = {
       message = Generator.generateMessage({
         relationship: this.state.relationship,
         occasion: 'birthday',
+        lang: this.state.lang,
         name: name,
         fields: { dob }
       });
@@ -533,6 +566,7 @@ const App = {
 
     return {
       relationship: this.state.relationship,
+      lang: this.state.lang || 'en',
       customRelationship: this.state.relationship === 'other'
         ? (this.state.customRelationship || document.getElementById('custom-relationship')?.value.trim() || 'Loved One')
         : '',
@@ -587,7 +621,7 @@ const App = {
   async generatePreview() {
     const name = document.getElementById('recipient-name').value.trim();
     if (!name) {
-      alert('Please enter the recipient\'s name.');
+      alert(t('alertName', this.state.lang));
       return;
     }
 
@@ -603,9 +637,10 @@ const App = {
 
   // Generate share link
   async generateLink() {
+    const lang = this.state.lang || 'en';
     // Show loading
     document.getElementById('loading-overlay').style.display = 'flex';
-    this.setLoadingStatus('Preparing...');
+    this.setLoadingStatus(t('loadPreparing', lang));
 
     try {
       // Upload file-based photos (non-blocking - continue even if uploads fail)
@@ -615,7 +650,7 @@ const App = {
       for (let i = 0; i < this.state.photos.length; i++) {
         if (this.state.photos[i]) {
           done++;
-          this.setLoadingStatus('Uploading photo ' + done + ' of ' + fileCount + '...');
+          this.setLoadingStatus(t('loadUploading', lang, { a: done, b: fileCount }));
           try {
             console.log('Uploading photo ' + (i + 1) + '...');
             const url = await Share.uploadImage(this.state.photos[i]);
@@ -642,7 +677,7 @@ const App = {
       const tiers = [{ w: 384, q: 0.55 }, { w: 256, q: 0.5 }, { w: 192, q: 0.5 }];
       for (let i = 0; i < this.state.photos.length; i++) {
         if (this.state.photos[i] && !uploadedUrls[i]) {
-          this.setLoadingStatus('Upload blocked - packing photo ' + (i + 1) + ' into the link...');
+          this.setLoadingStatus(t('loadPacking', lang, { a: i + 1 }));
           let placed = false;
           for (const t of tiers) {
             try {
@@ -662,7 +697,7 @@ const App = {
               console.warn('Photo ' + (i + 1) + ' embed failed:', thumbErr && thumbErr.message);
               if (!heicWarned && thumbErr && /HEIC/i.test(thumbErr.message || '')) {
                 heicWarned = true;
-                alert('One photo looks like an iPhone HEIC image, which browsers cannot display.\n\nPlease open the photo, take a screenshot of it, and use the screenshot instead (screenshots are JPEG and always work).');
+                alert(t('alertHeic', lang));
               }
               break; // decode errors won't improve with smaller tiers
             }
@@ -682,10 +717,10 @@ const App = {
 
       const hadFiles = this.state.photos.some(Boolean);
       if (hadFiles && finalData.photoUrls.length === 0) {
-        alert('Photos could not be added (uploads blocked and images too big to pack into the link).\n\nGuaranteed fix - use the site gallery:\n1. Upload your photo to the assets/photos folder in your GitHub repo\n2. Click "Choose from site gallery" and tap your photo\n\nOr paste a link (Google Drive and Dropbox share links work too).\n\nYour link will still be created without photos.');
+        alert(t('alertNoPhotos', lang));
       }
 
-      this.setLoadingStatus('Creating your link...');
+      this.setLoadingStatus(t('loadCreating', lang));
       const fullUrl = Share.generateFullUrl(finalData);
       console.log('Full URL length:', fullUrl.length);
 
@@ -695,12 +730,12 @@ const App = {
       document.getElementById('share-link').value = shortUrl;
       const subtitle = document.querySelector('#section-share .section-subtitle');
       const photoCount = finalData.photoUrls.length;
-      let note = 'Share this link with the birthday person.';
+      let note = t('noteDefault', lang);
       if (embedded > 0 && skipped.length === 0) {
-        note = 'Share this link with the birthday person. All ' + photoCount + ' photo(s) are packed inside this link - use the Copy button below.';
+        note = t('noteEmbedded', lang, { a: photoCount });
       } else if (skipped.length > 0) {
-        note = 'Share this link with the birthday person. Photo(s) ' + skipped.join(', ') + ' did not fit - add them via "Choose from site gallery" for guaranteed display.';
-        alert('Photo(s) ' + skipped.join(', ') + ' could not fit into the link.\n\nTo include them: upload those photos to the assets/photos folder in your GitHub repo, then use "Choose from site gallery".');
+        note = t('noteSkipped', lang, { a: skipped.join(', ') });
+        alert(t('alertSkipped', lang, { a: skipped.join(', ') }));
       }
       // QR codes only scan when the link is short. Huge links (packed photos)
       // produce codes no camera can read, so hide the code and say so.
@@ -716,14 +751,14 @@ const App = {
         qrBox.style.display = '';
       } else {
         qrBox.style.display = 'none';
-        note += ' This link is too long for a QR code, so please use the Copy button to share it.';
+        note += t('noteLong', lang);
       }
       subtitle.textContent = note;
 
       this.showSection('share');
     } catch (err) {
       console.error('Error generating link:', err);
-      alert('Error: ' + err.message + '. Please try again.');
+      alert(t('alertError', lang, { a: err.message }));
     } finally {
       this.setLoadingStatus('');
       document.getElementById('loading-overlay').style.display = 'none';
@@ -772,7 +807,7 @@ const App = {
       }
       html += '</div>';
     } else {
-      html += '<div style="margin-bottom: 1.5rem; padding: 1rem; border: 1px dashed var(--card-border); border-radius: 12px; color: var(--text-light); font-size: 0.9rem;">No photos added yet — add a file or paste an image URL above to see it here.</div>';
+      html += '<div style="margin-bottom: 1.5rem; padding: 1rem; border: 1px dashed var(--card-border); border-radius: 12px; color: var(--text-light); font-size: 0.9rem;">' + this.escapeHtml(t('previewNoPhotos', this.state.lang)) + '</div>';
     }
 
     // Message
@@ -798,6 +833,12 @@ const App = {
     // Show recipient view
     const recipientView = document.getElementById('recipient-view');
     recipientView.style.display = 'block';
+
+    // Apply gift language (hides the creator language toggle)
+    this.state.lang = data.lang === 'ar' ? 'ar' : 'en';
+    const langToggle = document.getElementById('lang-toggle');
+    if (langToggle) langToggle.style.display = 'none';
+    this.applyLang();
 
     // Apply theme
     document.documentElement.setAttribute('data-theme', data.theme || 'classic');
@@ -864,15 +905,19 @@ const App = {
     const dob = data.fields && data.fields.dob;
     if (dob && !isNaN(new Date(dob).getTime())) {
       const info = Generator.getBirthdayInfo(dob);
+      const lang = this.state.lang || 'en';
+      const turning = lang === 'ar'
+        ? `${t('turningWord', lang)} ${info ? info.age + 1 : ''} سنوات`
+        : `${t('turningWord', lang)} ${info ? info.age + 1 : ''}`;
       document.getElementById('recipient-details').style.display = 'block';
       document.getElementById('recipient-details-content').innerHTML = `
-        <div class="detail-label">Countdown to the big day</div>
-        <div class="detail-value">Turning ${info ? info.age + 1 : ''}</div>
+        <div class="detail-label">${t('cdLabel', lang)}</div>
+        <div class="detail-value">${turning}</div>
         <div class="countdown-grid">
-          <div class="countdown-box"><div class="countdown-num" id="cd-d">--</div><div class="countdown-label">Days</div></div>
-          <div class="countdown-box"><div class="countdown-num" id="cd-h">--</div><div class="countdown-label">Hours</div></div>
-          <div class="countdown-box"><div class="countdown-num" id="cd-m">--</div><div class="countdown-label">Mins</div></div>
-          <div class="countdown-box"><div class="countdown-num" id="cd-s">--</div><div class="countdown-label">Secs</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-d">--</div><div class="countdown-label">${t('cdDays', lang)}</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-h">--</div><div class="countdown-label">${t('cdHours', lang)}</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-m">--</div><div class="countdown-label">${t('cdMins', lang)}</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-s">--</div><div class="countdown-label">${t('cdSecs', lang)}</div></div>
         </div>
       `;
       this.startBirthdayCountdown(dob);
@@ -961,7 +1006,7 @@ const App = {
       if (diff <= 0) {
         set('cd-d', 0); set('cd-h', 0); set('cd-m', 0); set('cd-s', 0);
         const label = document.querySelector('#recipient-details-content .detail-label');
-        if (label) label.textContent = 'Today is the day!';
+        if (label) label.textContent = t('todayText', this.state.lang);
         clearInterval(timer);
         return;
       }
@@ -1091,6 +1136,7 @@ const App = {
   reset() {
     this.state = {
       currentSection: 'hero',
+      lang: 'en',
       relationship: null,
       customRelationship: '',
       occasion: 'birthday',
@@ -1144,6 +1190,10 @@ const App = {
 
     // Restore default theme on the page
     document.documentElement.setAttribute('data-theme', 'classic');
+
+    // Hide gallery picker and restore base language
+    document.getElementById('gallery-picker').style.display = 'none';
+    this.applyLang();
 
     Animations.startHeroAnimation();
   }
