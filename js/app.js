@@ -5,9 +5,9 @@ const App = {
   state: {
     currentSection: 'hero',
     lang: 'en',
+    occasion: null,
     relationship: null,
     customRelationship: '',
-    occasion: 'birthday',
     name: '',
     fields: {},
     messageMode: 'auto',
@@ -21,8 +21,8 @@ const App = {
     selectedTheme: 'classic'
   },
 
-  // Section order (birthday only)
-  sections: ['hero', 'relationship', 'customize', 'preview', 'share'],
+  // Section order (topic first, then person)
+  sections: ['hero', 'occasion', 'relationship', 'customize', 'preview', 'share'],
 
   // Initialize the app
   init() {
@@ -45,9 +45,21 @@ const App = {
 
   // Bind all event listeners
   bindEvents() {
-    // Hero -> Start
+    // Hero -> Topic
     document.getElementById('btn-start').addEventListener('click', () => {
-      this.showSection('relationship');
+      this.showSection('occasion');
+    });
+
+    // Topic selection
+    document.getElementById('occasion-grid').addEventListener('click', (e) => {
+      const card = e.target.closest('.card');
+      if (!card) return;
+      this.selectOccasion(card.dataset.occasion);
+    });
+
+    // Back from relationship to topic
+    document.getElementById('btn-back-relationship').addEventListener('click', () => {
+      this.showSection('occasion');
     });
 
     // Language toggle (creator flow)
@@ -203,9 +215,11 @@ const App = {
       this.updateAutoMessage();
     });
 
-    // Birthday date input triggers message regeneration
-    const dobEl = document.getElementById('birthday-date');
-    if (dobEl) dobEl.addEventListener('input', () => this.updateAutoMessage());
+    // Topic field inputs trigger message regeneration
+    ['birthday-date', 'love-reason', 'thank-you-reason', 'years-together', 'anniversary-date'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', () => this.updateAutoMessage());
+    });
   },
 
   // Apply current language to all tagged static text + page direction
@@ -244,10 +258,24 @@ const App = {
     }
   },
 
-  // Select relationship (birthday is the only occasion)
+  // Select topic (first step after entering)
+  selectOccasion(occasion) {
+    this.state.occasion = occasion;
+
+    // Update UI
+    document.querySelectorAll('#occasion-grid .card').forEach(card => {
+      card.classList.toggle('selected', card.dataset.occasion === occasion);
+    });
+
+    // Small delay for visual feedback
+    setTimeout(() => {
+      this.showSection('relationship');
+    }, 300);
+  },
+
+  // Select relationship (person the gift is for)
   selectRelationship(relationship) {
     this.state.relationship = relationship;
-    this.state.occasion = 'birthday';
 
     // Update UI
     document.querySelectorAll('#relationship-grid .card').forEach(card => {
@@ -264,13 +292,33 @@ const App = {
     }
     customWrap.style.display = 'none';
 
-    // Generate auto message
+    // Show only the fields for the chosen topic, then message
+    this.updateFormFields();
     this.updateAutoMessage();
 
     // Small delay for visual feedback
     setTimeout(() => {
       this.showSection('customize');
     }, 300);
+  },
+
+  // Show only the form fields that belong to the chosen topic
+  updateFormFields() {
+    const occ = this.state.occasion || 'birthday';
+    document.querySelectorAll('.occasion-field').forEach(field => {
+      field.style.display = field.dataset.for === occ ? '' : 'none';
+    });
+  },
+
+  // Gather topic-specific field values
+  occasionFields() {
+    return {
+      dob: document.getElementById('birthday-date')?.value || '',
+      reason: document.getElementById('love-reason')?.value?.trim() ||
+              document.getElementById('thank-you-reason')?.value?.trim() || '',
+      anniversaryDate: document.getElementById('anniversary-date')?.value || '',
+      years: document.getElementById('years-together')?.value || ''
+    };
   },
 
   // Continue after typing a custom relationship (Other)
@@ -284,6 +332,7 @@ const App = {
     }
     this.state.customRelationship = label;
     document.getElementById('custom-relationship-wrap').style.display = 'none';
+    this.updateFormFields();
     this.updateAutoMessage();
     this.showSection('customize');
   },
@@ -483,14 +532,13 @@ const App = {
     if (this.state.messageMode !== 'auto') return;
 
     const name = document.getElementById('recipient-name').value || 'their name';
-    const dob = document.getElementById('birthday-date')?.value || '';
 
     const data = {
       relationship: this.state.relationship,
-      occasion: 'birthday',
+      occasion: this.state.occasion || 'birthday',
       lang: this.state.lang,
       name: name,
-      fields: { dob }
+      fields: this.occasionFields()
     };
 
     const message = Generator.generateMessage(data);
@@ -534,7 +582,7 @@ const App = {
   // Collect form data - keeps URL + caption aligned per slot
   collectData() {
     const name = document.getElementById('recipient-name').value.trim();
-    const dob = document.getElementById('birthday-date')?.value || '';
+    const fields = this.occasionFields();
 
     // Build aligned pairs per slot: file-upload URL wins, else pasted URL
     const allPhotoUrls = [];
@@ -558,10 +606,10 @@ const App = {
     } else {
       message = Generator.generateMessage({
         relationship: this.state.relationship,
-        occasion: 'birthday',
+        occasion: this.state.occasion || 'birthday',
         lang: this.state.lang,
         name: name,
-        fields: { dob }
+        fields: fields
       });
     }
 
@@ -571,9 +619,9 @@ const App = {
       customRelationship: this.state.relationship === 'other'
         ? (this.state.customRelationship || document.getElementById('custom-relationship')?.value.trim() || 'Loved One')
         : '',
-      occasion: 'birthday',
+      occasion: this.state.occasion || 'birthday',
       name: name,
-      fields: { dob },
+      fields: fields,
       message: message,
       theme: this.state.selectedTheme,
       music: document.getElementById('music-toggle').checked,
@@ -895,8 +943,12 @@ const App = {
       galleryGrid.innerHTML = galleryHtml;
     }
 
+    // Cake only suits birthdays + anniversaries - hide it for other topics
+    const cakeSection = document.getElementById('recipient-cake');
+    const showCake = data.occasion === 'birthday' || data.occasion === 'anniversary';
+    if (cakeSection) cakeSection.style.display = showCake ? '' : 'none';
     // Interactive birthday cake (tap candles to blow them out)
-    this.setupCake();
+    if (showCake) this.setupCake();
 
     // Smooth scroll-triggered reveals for the whole gift page
     setTimeout(() => {
@@ -1167,9 +1219,9 @@ const App = {
     this.state = {
       currentSection: 'hero',
       lang: 'en',
+      occasion: null,
       relationship: null,
       customRelationship: '',
-      occasion: 'birthday',
       name: '',
       fields: {},
       messageMode: 'auto',
@@ -1192,8 +1244,11 @@ const App = {
       if (s.dataset.theme === 'classic') s.classList.add('active');
     });
     document.getElementById('recipient-name').value = '';
-    const dobInput = document.getElementById('birthday-date');
-    if (dobInput) dobInput.value = '';
+    ['birthday-date', 'anniversary-date', 'years-together', 'thank-you-reason', 'love-reason'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.querySelectorAll('.occasion-field').forEach(f => { f.style.display = 'none'; });
 
     // Reset all photo slots
     for (let i = 0; i < 5; i++) {
