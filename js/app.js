@@ -848,9 +848,10 @@ const App = {
       }, { once: true });
     }
 
-    // Start floating hearts
+    // Opening celebration: heart + flower burst, petal shower,
+    // then calm ambient drift while scrolling
     setTimeout(() => {
-      Animations.startFloatingHearts(recipientView, 1200);
+      Animations.startCelebration(recipientView);
     }, 500);
   },
 

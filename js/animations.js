@@ -169,6 +169,90 @@ const Animations = {
       this.stopFloatingHearts();
       this.startFloatingHearts(heroHearts, 600);
     }
+  },
+
+  // True on devices asking for reduced motion - celebration stays calm
+  calmMode() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  },
+
+  pick(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  },
+
+  flowers() {
+    return ['🌸', '🌷', '🌹', '🌺', '💮', '🏵️', '💐'];
+  },
+
+  hearts() {
+    return ['❤️', '💖', '💕', '💗', '💝', '❣️'];
+  },
+
+  // One falling petal drifting down the screen
+  dropPetal(container) {
+    const petal = document.createElement('span');
+    petal.className = 'falling-petal';
+    petal.textContent = Math.random() < 0.6 ? this.pick(this.flowers()) : this.pick(this.hearts());
+    const fallTime = Math.random() * 4 + 7; // 7-11s gentle fall
+    petal.style.left = Math.random() * 100 + 'vw';
+    petal.style.fontSize = (Math.random() * 1.1 + 0.9) + 'rem';
+    petal.style.opacity = (Math.random() * 0.4 + 0.55).toFixed(2);
+    petal.style.animationDuration = fallTime + 's,' + (Math.random() * 1.5 + 2.4).toFixed(2) + 's';
+
+    (container || document.body).appendChild(petal);
+    petal.addEventListener('animationend', (e) => {
+      if (e.animationName === 'fallDown') petal.remove();
+    });
+    // Safety cleanup in case animationend is missed
+    setTimeout(() => petal.remove(), (fallTime + 1) * 1000);
+    return petal;
+  },
+
+  // Gentle ongoing petal drift (slow, sparse - stays smooth while scrolling)
+  startPetalDrift(container, interval = 2600) {
+    const id = setInterval(() => this.dropPetal(container), interval);
+    this.hearts.push(id);
+    return id;
+  },
+
+  // Festive shower right when the gift opens
+  petalShower(container, durationMs = 6000, interval = 320) {
+    if (this.calmMode()) return null;
+    const id = setInterval(() => this.dropPetal(container), interval);
+    setTimeout(() => clearInterval(id), durationMs);
+    return id;
+  },
+
+  // Fountain burst of hearts + flowers from screen center
+  celebrationBurst(container, count = 42) {
+    if (this.calmMode()) return;
+    const host = container || document.body;
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight * 0.42;
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const piece = document.createElement('span');
+        piece.className = 'burst-piece';
+        piece.textContent = Math.random() < 0.55 ? this.pick(this.flowers()) : this.pick(this.hearts());
+        piece.style.left = cx + 'px';
+        piece.style.top = cy + 'px';
+        piece.style.fontSize = (Math.random() * 1.2 + 0.9) + 'rem';
+        piece.style.setProperty('--dx', Math.round((Math.random() - 0.5) * window.innerWidth * 0.85) + 'px');
+        piece.style.setProperty('--dy', -Math.round(Math.random() * window.innerHeight * 0.55 + 90) + 'px');
+        host.appendChild(piece);
+        piece.addEventListener('animationend', () => piece.remove());
+        setTimeout(() => piece.remove(), 2200);
+      }, i * 28);
+    }
+  },
+
+  // Full opening celebration for the gift page:
+  // burst + petal shower, then calm ambient hearts + drifting petals
+  startCelebration(container) {
+    this.celebrationBurst(container);
+    this.petalShower(container, 6500, 300);
+    this.startFloatingHearts(container, 1400);
+    this.startPetalDrift(container, 2800);
   }
 };
 

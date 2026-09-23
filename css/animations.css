@@ -170,7 +170,54 @@
   font-size: 1.5rem;
   pointer-events: none;
   z-index: 9999;
-  animation: floatUp linear forwards;
+  animation: floatUp linear forwards, sway 3.4s ease-in-out infinite;
+}
+
+/* Gentle falling petals (flowers + hearts drifting down) */
+@keyframes fallDown {
+  0% {
+    transform: translateY(-8vh) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(108vh) rotate(320deg);
+    opacity: 0.9;
+  }
+}
+
+@keyframes sway {
+  0%, 100% { margin-left: 0; }
+  50% { margin-left: 36px; }
+}
+
+.falling-petal {
+  position: fixed;
+  top: 0;
+  pointer-events: none;
+  z-index: 9998;
+  animation: fallDown linear forwards, sway ease-in-out infinite;
+}
+
+/* Opening celebration burst pieces */
+@keyframes burstFly {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0.35) rotate(160deg);
+    opacity: 0;
+  }
+}
+
+.burst-piece {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  animation: burstFly 1.7s cubic-bezier(0.17, 0.67, 0.35, 1) forwards;
 }
 
 /* ===== Particle ===== */
