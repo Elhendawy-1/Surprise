@@ -647,19 +647,32 @@ const App = {
 
       // Update share section
       document.getElementById('share-link').value = shortUrl;
-      const qrUrl = Share.getQrCodeUrl(shortUrl);
-      document.getElementById('qr-image').src = qrUrl;
-      const qrDownload = document.getElementById('qr-download');
-      if (qrDownload) qrDownload.href = qrUrl;
+      const subtitle = document.querySelector('#section-share .section-subtitle');
       const photoCount = finalData.photoUrls.length;
+      let note = 'Share this link with the birthday person.';
       if (embedded > 0 && skipped.length === 0) {
-        document.querySelector('#section-share .section-subtitle').textContent =
-          'Share this link with the birthday person. All ' + photoCount + ' photo(s) are packed inside this link - use the Copy button (the QR code may be too dense to scan).';
+        note = 'Share this link with the birthday person. All ' + photoCount + ' photo(s) are packed inside this link - use the Copy button below.';
       } else if (skipped.length > 0) {
-        document.querySelector('#section-share .section-subtitle').textContent =
-          'Share this link with the birthday person. Photo(s) ' + skipped.join(', ') + ' did not fit - add them via "Choose from site gallery" for guaranteed display.';
+        note = 'Share this link with the birthday person. Photo(s) ' + skipped.join(', ') + ' did not fit - add them via "Choose from site gallery" for guaranteed display.';
         alert('Photo(s) ' + skipped.join(', ') + ' could not fit into the link.\n\nTo include them: upload those photos to the assets/photos folder in your GitHub repo, then use "Choose from site gallery".');
       }
+      // QR codes only scan when the link is short. Huge links (packed photos)
+      // produce codes no camera can read, so hide the code and say so.
+      const qrBox = document.getElementById('share-qr');
+      if (shortUrl.length <= 2000) {
+        const qrUrl = Share.getQrCodeUrl(shortUrl);
+        document.getElementById('qr-image').src = qrUrl;
+        const qrDownload = document.getElementById('qr-download');
+        if (qrDownload) {
+          qrDownload.href = qrUrl;
+          qrDownload.style.display = '';
+        }
+        qrBox.style.display = '';
+      } else {
+        qrBox.style.display = 'none';
+        note += ' This link is too long for a QR code, so please use the Copy button to share it.';
+      }
+      subtitle.textContent = note;
 
       this.showSection('share');
     } catch (err) {
