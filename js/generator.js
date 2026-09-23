@@ -45,6 +45,20 @@ const Generator = {
       thankYou: "Dear {name}, thank you for {reason}. True friends are rare, and you are one of the very best.",
       justBecause: "Dear {name}, just wanted to remind you how great you are. Thanks for being you - never change."
     },
+    husband: {
+      birthday: "Happy Birthday, {name}! Thank you for being my partner, my strength, and my best friend. Today we celebrate you and everything you are. I love you!",
+      valentine: "Happy Valentine's Day, my love! {reason} Every day with you is a gift, and my heart chooses you over and over again.",
+      anniversary: "Happy Anniversary, my love! {years} Every year with you is my favorite chapter. Here's to us - today, tomorrow, always.",
+      thankYou: "My dearest {name}, thank you for {reason}. Your love and support mean the world to me. I'm so lucky to walk through life with you.",
+      justBecause: "My love, {name}, just wanted to remind you how deeply you are loved. You are my heart, my home, and my happiness."
+    },
+    wife: {
+      birthday: "Happy Birthday, {name}! You fill our lives with love, warmth, and beauty. Today is all about celebrating the amazing woman you are. I love you!",
+      valentine: "Happy Valentine's Day, my love! {reason} You are the most beautiful part of my every day. My heart is yours, completely.",
+      anniversary: "Happy Anniversary, my love! {years} Loving you is the easiest thing I've ever done. Here's to forever, together.",
+      thankYou: "My dearest {name}, thank you for {reason}. Your love makes our house a home and every day brighter. I appreciate you endlessly.",
+      justBecause: "My love, {name}, just wanted you to know you are cherished beyond words. Thank you for being you."
+    },
     other: {
       birthday: "Happy Birthday, {name}! Today is all about you. Thank you for being such a special part of my life - your kindness, laughter, and warmth mean more than you know. May this year bring you everything you deserve and more!",
       valentine: "Happy Valentine's Day, {name}! Wishing you a day full of love and sweetness. You deserve it all, especially for {reason}.",
@@ -98,6 +112,20 @@ const Generator = {
       thankYou: "عزيزي {name}، شكرًا على {reason}. الأصدقاء الحقيقيون نادرون، وأنت من أفضلهم.",
       justBecause: "عزيزي {name}، أردت فقط أن أذكرك كم أنت رائع. شكرًا لكونك أنت - لا تتغير أبدًا."
     },
+    husband: {
+      birthday: "عيد ميلاد سعيد يا {name}! شكرًا لكونك شريكي وسندي وأعز أصدقائي. اليوم نحتفل بك وبكل ما أنت عليه. أحبك!",
+      valentine: "عيد حب سعيد يا حبيبي! {reason} كل يوم معك هدية، وقلبي يختارك مرارًا وتكرارًا.",
+      anniversary: "ذكرى سعيدة يا حبيبي! {years} كل سنة معك هي فصلي المفضل. لنا - اليوم وغدًا ودائمًا.",
+      thankYou: "يا أغلى {name}، شكرًا على {reason}. حبك ودعمك يعنيان لي العالم. محظوظ أن أمشي في الحياة معك.",
+      justBecause: "يا حبيبي {name}، أردت فقط أن أذكرك كم أنت محبوب بعمق. أنت قلبي وبيتي وسعادتي."
+    },
+    wife: {
+      birthday: "عيد ميلاد سعيد يا {name}! تملئين حياتنا حبًا ودفئًا وجمالًا. اليوم كله للاحتفال بالمرأة الرائعة التي أنتِ. أحبك!",
+      valentine: "عيد حب سعيد يا حبيبتي! {reason} أنتِ أجمل جزء في كل يوم. قلبي لكِ بالكامل.",
+      anniversary: "ذكرى سعيدة يا حبيبتي! {years} حبك أسهل شيء فعلته. إلى الأبد معًا.",
+      thankYou: "يا أغلى {name}، شكرًا على {reason}. حبك يجعل بيتنا بيتًا وكل يوم أجمل. أقدّرك بلا حدود.",
+      justBecause: "يا حبيبتي {name}، أردت فقط أن تعرفي أنك عزيزة أكثر من الكلمات. شكرًا لكونك أنتِ."
+    },
     other: {
       birthday: "عيد ميلاد سعيد يا {name}! اليوم كله لك. شكرًا لكونك جزءًا مميزًا من حياتي - لطفك وضحكتك ودفئك يعنون لي أكثر مما تعرف. أتمنى لك سنة تحقق لك كل ما تستحق وأكثر!",
       valentine: "عيد حب سعيد يا {name}! أتمنى لك يومًا مليئًا بالحب والحلاوة. تستحق كل جميل، خصوصًا لـ{reason}.",
@@ -149,6 +177,20 @@ const Generator = {
       anniversary: `Happy Anniversary, {name}!`,
       thankYou: `Thank You, {name}`,
       justBecause: `Hey {name}!`
+    },
+    husband: {
+      birthday: `Happy Birthday, {name}!`,
+      valentine: `Happy Valentine's Day, my love!`,
+      anniversary: `Happy Anniversary, my love!`,
+      thankYou: `Thank You, my love`,
+      justBecause: `My Dearest {name}`
+    },
+    wife: {
+      birthday: `Happy Birthday, {name}!`,
+      valentine: `Happy Valentine's Day, my love!`,
+      anniversary: `Happy Anniversary, my love!`,
+      thankYou: `Thank You, my love`,
+      justBecause: `My Dearest {name}`
     },
     other: {
       birthday: `Happy Birthday, {name}!`,
@@ -202,6 +244,20 @@ const Generator = {
       thankYou: "شكرًا لك يا {name}",
       justBecause: "أهلًا {name}!"
     },
+    husband: {
+      birthday: "عيد ميلاد سعيد يا {name}!",
+      valentine: "عيد حب سعيد يا حبيبي!",
+      anniversary: "ذكرى سعيدة يا حبيبي!",
+      thankYou: "شكرًا لك يا حبيبي",
+      justBecause: "يا أعز {name}"
+    },
+    wife: {
+      birthday: "عيد ميلاد سعيد يا {name}!",
+      valentine: "عيد حب سعيد يا حبيبتي!",
+      anniversary: "ذكرى سعيدة يا حبيبتي!",
+      thankYou: "شكرًا لك يا حبيبتي",
+      justBecause: "يا أعز {name}"
+    },
     other: {
       birthday: "عيد ميلاد سعيد يا {name}!",
       valentine: "عيد حب سعيد يا {name}!",
@@ -218,6 +274,8 @@ const Generator = {
     dad: "With all my love, your child",
     friend: "With love, your friend",
     brother: "With love, your sibling",
+    husband: "Forever yours",
+    wife: "Forever yours",
     other: "With lots of love"
   },
 
@@ -228,6 +286,8 @@ const Generator = {
     dad: "بحبك يا أبي",
     friend: "مع حبي، صديقك",
     brother: "بحبك يا أخي",
+    husband: "لك إلى الأبد",
+    wife: "لكِ إلى الأبد",
     other: "مع كل الحب"
   },
 

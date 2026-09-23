@@ -302,11 +302,11 @@ const App = {
   // (Valentine, Anniversary) skip Mom, Dad and Aunt; gratitude and
   // spontaneous gifts fit everyone.
   topicPeople: {
-    birthday: ['mom', 'dad', 'sister', 'brother', 'aunt', 'friend', 'other'],
-    valentine: ['sister', 'brother', 'friend', 'other'],
-    anniversary: ['sister', 'brother', 'friend', 'other'],
-    thankYou: ['mom', 'dad', 'sister', 'brother', 'aunt', 'friend', 'other'],
-    justBecause: ['mom', 'dad', 'sister', 'brother', 'aunt', 'friend', 'other']
+    birthday: ['mom', 'dad', 'sister', 'brother', 'aunt', 'friend', 'husband', 'wife', 'other'],
+    valentine: ['husband', 'wife', 'other'],
+    anniversary: ['husband', 'wife', 'other'],
+    thankYou: ['mom', 'dad', 'sister', 'brother', 'aunt', 'friend', 'husband', 'wife', 'other'],
+    justBecause: ['mom', 'dad', 'sister', 'brother', 'aunt', 'friend', 'husband', 'wife', 'other']
   },
 
   // Select topic (first step after entering)
