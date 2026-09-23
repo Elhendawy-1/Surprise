@@ -21,8 +21,8 @@
         <span class="ampersand">&amp;</span>
         <span class="script-text">Warmth</span>
       </h1>
-      <p class="hero-subtitle">Create a personalized digital gift for someone special</p>
-      <button id="btn-start" class="btn-primary">Create a Gift</button>
+      <p class="hero-subtitle">Create a personalized digital birthday gift for someone special</p>
+      <button id="btn-start" class="btn-primary">Create a Birthday Gift</button>
     </div>
   </section>
 
@@ -60,70 +60,21 @@
     </div>
   </section>
 
-  <!-- SECTION 3: Choose Occasion -->
-  <section id="section-occasion" class="section">
-    <div class="section-inner">
-      <h2 class="section-title">What's the occasion?</h2>
-      <p class="section-subtitle">Choose an occasion</p>
-      <div class="card-grid" id="occasion-grid">
-        <button class="card" data-occasion="birthday">
-          <span class="card-icon">&#127874;</span>
-          <span class="card-label">Birthday</span>
-        </button>
-        <button class="card" data-occasion="thankYou">
-          <span class="card-icon">&#128591;</span>
-          <span class="card-label">Thank You</span>
-        </button>
-        <button class="card" data-occasion="justBecause">
-          <span class="card-icon">&#128140;</span>
-          <span class="card-label">Just Because</span>
-        </button>
-        <button class="card" data-occasion="anniversary">
-          <span class="card-icon">&#127881;</span>
-          <span class="card-label">Anniversary</span>
-        </button>
-        <button class="card" data-occasion="appreciation">
-          <span class="card-icon">&#10084;&#65039;</span>
-          <span class="card-label">Appreciation</span>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- SECTION 4: Customize -->
+  <!-- SECTION 3: Customize (Birthday only) -->
   <section id="section-customize" class="section">
     <div class="section-inner">
-      <h2 class="section-title">Personalize your gift</h2>
-      <p class="section-subtitle">Fill in the details below</p>
+      <h2 class="section-title">Personalize the birthday gift</h2>
+      <p class="section-subtitle">Fill in the birthday details below</p>
 
       <form id="customize-form" class="customize-form" onsubmit="return false;">
         <div class="form-group">
-          <label for="recipient-name">Recipient's Name</label>
+          <label for="recipient-name">Birthday person's name</label>
           <input type="text" id="recipient-name" placeholder="Enter their name" required>
         </div>
 
-        <div class="form-group occasion-field" data-for="birthday" style="display:none;">
+        <div class="form-group">
           <label for="birthday-date">Date of Birth</label>
           <input type="date" id="birthday-date">
-        </div>
-
-        <div class="form-group occasion-field" data-for="anniversary" style="display:none;">
-          <label for="anniversary-date">Anniversary Date</label>
-          <input type="date" id="anniversary-date">
-        </div>
-        <div class="form-group occasion-field" data-for="anniversary" style="display:none;">
-          <label for="years-together">Years Together (optional)</label>
-          <input type="number" id="years-together" min="1" max="100" placeholder="e.g., 5">
-        </div>
-
-        <div class="form-group occasion-field" data-for="thankYou" style="display:none;">
-          <label for="thank-you-reason">What are you thanking them for?</label>
-          <input type="text" id="thank-you-reason" placeholder="e.g., always being there for me">
-        </div>
-
-        <div class="form-group occasion-field" data-for="appreciation" style="display:none;">
-          <label for="appreciation-reason">What do you appreciate about them?</label>
-          <input type="text" id="appreciation-reason" placeholder="e.g., your kindness and support">
         </div>
 
         <div class="form-group">
@@ -275,11 +226,11 @@
     </div>
   </section>
 
-  <!-- SECTION 5: Preview -->
+  <!-- SECTION 4: Preview -->
   <section id="section-preview" class="section">
     <div class="section-inner">
-      <h2 class="section-title">Preview Your Gift</h2>
-      <p class="section-subtitle">This is what the recipient will see</p>
+      <h2 class="section-title">Preview Your Birthday Gift</h2>
+      <p class="section-subtitle">This is what the birthday person will see</p>
       <div class="preview-frame" id="preview-frame">
         <div class="preview-content" id="preview-content"></div>
       </div>
@@ -290,11 +241,11 @@
     </div>
   </section>
 
-  <!-- SECTION 6: Share -->
+  <!-- SECTION 5: Share -->
   <section id="section-share" class="section">
     <div class="section-inner">
-      <h2 class="section-title">Your Gift is Ready!</h2>
-      <p class="section-subtitle">Share this link with your loved one</p>
+      <h2 class="section-title">Your Birthday Gift is Ready!</h2>
+      <p class="section-subtitle">Share this link with the birthday person</p>
       <div class="share-box">
         <div class="share-link-container">
           <input type="text" id="share-link" class="share-link" readonly>

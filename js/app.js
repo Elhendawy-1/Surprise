@@ -5,7 +5,7 @@ const App = {
   state: {
     currentSection: 'hero',
     relationship: null,
-    occasion: null,
+    occasion: 'birthday',
     name: '',
     fields: {},
     messageMode: 'auto',
@@ -19,8 +19,8 @@ const App = {
     selectedTheme: 'classic'
   },
 
-  // Section order
-  sections: ['hero', 'relationship', 'occasion', 'customize', 'preview', 'share'],
+  // Section order (birthday only)
+  sections: ['hero', 'relationship', 'customize', 'preview', 'share'],
 
   // Initialize the app
   init() {
@@ -52,13 +52,6 @@ const App = {
       const card = e.target.closest('.card');
       if (!card) return;
       this.selectRelationship(card.dataset.relationship);
-    });
-
-    // Occasion selection
-    document.getElementById('occasion-grid').addEventListener('click', (e) => {
-      const card = e.target.closest('.card');
-      if (!card) return;
-      this.selectOccasion(card.dataset.occasion);
     });
 
     // Photo uploads - multiple slots
@@ -124,7 +117,7 @@ const App = {
 
     // Back buttons
     document.getElementById('btn-back-customize').addEventListener('click', () => {
-      this.showSection('occasion');
+      this.showSection('relationship');
     });
 
     // Preview button
@@ -173,11 +166,9 @@ const App = {
       this.updateAutoMessage();
     });
 
-    // Occasion-specific inputs trigger message regeneration
-    ['thank-you-reason', 'appreciation-reason', 'years-together'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('input', () => this.updateAutoMessage());
-    });
+    // Birthday date input triggers message regeneration
+    const dobEl = document.getElementById('birthday-date');
+    if (dobEl) dobEl.addEventListener('input', () => this.updateAutoMessage());
   },
 
   // Show a section
@@ -196,52 +187,23 @@ const App = {
     }
   },
 
-  // Select relationship
+  // Select relationship (birthday is the only occasion)
   selectRelationship(relationship) {
     this.state.relationship = relationship;
+    this.state.occasion = 'birthday';
 
     // Update UI
     document.querySelectorAll('#relationship-grid .card').forEach(card => {
       card.classList.toggle('selected', card.dataset.relationship === relationship);
     });
 
-    // Small delay for visual feedback
-    setTimeout(() => {
-      this.showSection('occasion');
-    }, 300);
-  },
-
-  // Select occasion
-  selectOccasion(occasion) {
-    this.state.occasion = occasion;
-
-    // Update UI
-    document.querySelectorAll('#occasion-grid .card').forEach(card => {
-      card.classList.toggle('selected', card.dataset.occasion === occasion);
-    });
-
-    // Update dynamic form fields
-    this.updateFormFields();
-
     // Generate auto message
     this.updateAutoMessage();
 
+    // Small delay for visual feedback
     setTimeout(() => {
       this.showSection('customize');
     }, 300);
-  },
-
-  // Update form fields based on occasion
-  updateFormFields() {
-    // Hide all occasion-specific fields
-    document.querySelectorAll('.occasion-field').forEach(field => {
-      field.style.display = 'none';
-    });
-
-    // Show fields for selected occasion
-    document.querySelectorAll(`.occasion-field[data-for="${this.state.occasion}"]`).forEach(field => {
-      field.style.display = 'block';
-    });
   },
 
   // Handle photo upload for specific slot
@@ -336,16 +298,13 @@ const App = {
     if (this.state.messageMode !== 'auto') return;
 
     const name = document.getElementById('recipient-name').value || 'their name';
-    const reason = document.getElementById('thank-you-reason')?.value ||
-                   document.getElementById('appreciation-reason')?.value || '';
-    const years = document.getElementById('years-together')?.value || '';
     const dob = document.getElementById('birthday-date')?.value || '';
 
     const data = {
       relationship: this.state.relationship,
-      occasion: this.state.occasion,
+      occasion: 'birthday',
       name: name,
-      fields: { reason, years, dob }
+      fields: { dob }
     };
 
     const message = Generator.generateMessage(data);
@@ -380,11 +339,7 @@ const App = {
   // Collect form data - keeps URL + caption aligned per slot
   collectData() {
     const name = document.getElementById('recipient-name').value.trim();
-    const reason = document.getElementById('thank-you-reason')?.value?.trim() ||
-                   document.getElementById('appreciation-reason')?.value?.trim() || '';
-    const years = document.getElementById('years-together')?.value || '';
     const dob = document.getElementById('birthday-date')?.value || '';
-    const anniversaryDate = document.getElementById('anniversary-date')?.value || '';
 
     // Build aligned pairs per slot: file-upload URL wins, else pasted URL
     const allPhotoUrls = [];
@@ -408,17 +363,17 @@ const App = {
     } else {
       message = Generator.generateMessage({
         relationship: this.state.relationship,
-        occasion: this.state.occasion,
+        occasion: 'birthday',
         name: name,
-        fields: { reason, years, dob }
+        fields: { dob }
       });
     }
 
     return {
       relationship: this.state.relationship,
-      occasion: this.state.occasion,
+      occasion: 'birthday',
       name: name,
-      fields: { reason, years, dob, anniversaryDate },
+      fields: { dob },
       message: message,
       theme: this.state.selectedTheme,
       music: document.getElementById('music-toggle').checked,
@@ -758,7 +713,7 @@ const App = {
     this.state = {
       currentSection: 'hero',
       relationship: null,
-      occasion: null,
+      occasion: 'birthday',
       name: '',
       fields: {},
       messageMode: 'auto',
@@ -779,11 +734,8 @@ const App = {
       if (s.dataset.theme === 'classic') s.classList.add('active');
     });
     document.getElementById('recipient-name').value = '';
-    document.getElementById('birthday-date').value = '';
-    document.getElementById('anniversary-date').value = '';
-    document.getElementById('years-together').value = '';
-    document.getElementById('thank-you-reason').value = '';
-    document.getElementById('appreciation-reason').value = '';
+    const dobInput = document.getElementById('birthday-date');
+    if (dobInput) dobInput.value = '';
 
     // Reset all photo slots
     for (let i = 0; i < 5; i++) {
@@ -797,9 +749,6 @@ const App = {
     this.setMessageMode('auto');
     document.getElementById('custom-message').value = '';
     document.getElementById('music-toggle').checked = true;
-
-    // Hide all occasion fields
-    document.querySelectorAll('.occasion-field').forEach(f => f.style.display = 'none');
 
     // Reset recipient view sections
     document.getElementById('recipient-gallery').style.display = 'none';
