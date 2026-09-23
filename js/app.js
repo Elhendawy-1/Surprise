@@ -506,7 +506,7 @@ const App = {
     // Main photo (first one) + caption
     if (photos.length > 0) {
       html += '<div style="margin-bottom: 2rem; opacity: 0; animation: scaleIn 0.6s ease 0.1s forwards;">';
-      html += `<img src="${photos[0]}" alt="${this.escapeHtml(data.name)}" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 4px solid var(--accent); box-shadow: 0 5px 25px var(--shadow-lg);" onerror="this.style.display='none'">`;
+      html += `<img src="${photos[0]}" alt="${this.escapeHtml(data.name)}" referrerpolicy="no-referrer" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 4px solid var(--accent); box-shadow: 0 5px 25px var(--shadow-lg);" onerror="this.style.display='none'">`;
       if (photoTexts[0]) {
         html += `<div style="font-style: italic; color: var(--text-light); margin-top: 0.75rem;">${this.escapeHtml(photoTexts[0])}</div>`;
       }
@@ -528,7 +528,7 @@ const App = {
       html += '<div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 2rem;">';
       for (let i = 1; i < photos.length; i++) {
         html += `<div style="opacity: 0; animation: scaleIn 0.5s ease ${0.5 + i * 0.2}s forwards; max-width: 160px;">`;
-        html += `<img src="${photos[i]}" alt="" style="width: 150px; height: 150px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 15px var(--shadow);" onerror="this.parentNode.style.display='none'">`;
+        html += `<img src="${photos[i]}" alt="" referrerpolicy="no-referrer" style="width: 150px; height: 150px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 15px var(--shadow);" onerror="this.parentNode.style.display='none'">`;
         if (photoTexts[i]) {
           html += `<div style="font-size: 0.8rem; color: var(--text-light); font-style: italic; margin-top: 0.4rem;">${this.escapeHtml(photoTexts[i])}</div>`;
         }
@@ -586,6 +586,7 @@ const App = {
       const mainPhoto = document.getElementById('recipient-main-photo');
       const mainPhotoImg = document.getElementById('recipient-main-photo-img');
       mainPhoto.style.display = 'block';
+      mainPhotoImg.setAttribute('referrerpolicy', 'no-referrer');
       mainPhotoImg.onerror = () => { mainPhoto.style.display = 'none'; };
       mainPhotoImg.src = photos[0];
 
@@ -617,8 +618,9 @@ const App = {
       for (let i = 1; i < photos.length; i++) {
         if (!photos[i]) continue;
         const isFullWidth = (i === 1 && photos.length === 2);
-        galleryHtml += `<div class="recipient-gallery-item ${isFullWidth ? 'full-width' : ''}" data-index="${i}">`;
-        galleryHtml += `<img src="${photos[i]}" alt="Memory ${i}" loading="lazy" onerror="this.parentNode.style.display='none'">`;
+        const delay = (i - 1) * 140;
+        galleryHtml += `<div class="recipient-gallery-item ${isFullWidth ? 'full-width' : ''}" data-index="${i}" style="transition-delay:${delay}ms">`;
+        galleryHtml += `<img src="${photos[i]}" alt="Memory ${i}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.style.display='none'">`;
         if (photoTexts[i]) {
           galleryHtml += `<div class="gallery-item-text">${this.escapeHtml(photoTexts[i])}</div>`;
         }
