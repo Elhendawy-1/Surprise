@@ -80,6 +80,21 @@ const App = {
       });
     });
 
+    // Site gallery picker per slot
+    document.querySelectorAll('.photo-gallery-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.openGalleryPicker(parseInt(e.target.dataset.slot));
+      });
+    });
+
+    const galleryClose = document.getElementById('gallery-picker-close');
+    if (galleryClose) {
+      galleryClose.addEventListener('click', () => {
+        document.getElementById('gallery-picker').style.display = 'none';
+      });
+    }
+
     // Drag and drop for each slot
     document.querySelectorAll('.photo-upload-area').forEach(area => {
       area.addEventListener('dragover', (e) => {
@@ -233,7 +248,8 @@ const App = {
   },
 
   // Handle pasted URL - show live preview
-  handlePhotoUrlInput(val, slot) {
+  handlePhotoUrlInput(rawVal, slot) {
+    const val = Share.normalizeImageUrl(rawVal);
     const img = document.getElementById(`photo-preview-img-${slot}`);
     const preview = document.getElementById(`photo-preview-${slot}`);
     const placeholder = document.getElementById(`photo-placeholder-${slot}`);
@@ -281,6 +297,73 @@ const App = {
     }
   },
 
+  // Open site gallery picker for a slot (photos stored in the repo)
+  openGalleryPicker(slot) {
+    this.siteGallery.pendingSlot = slot;
+    const panel = document.getElementById('gallery-picker');
+    const grid = document.getElementById('gallery-picker-grid');
+    const status = document.getElementById('gallery-picker-status');
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    if (this.siteGallery.cache) {
+      this.renderGalleryPicker(this.siteGallery.cache);
+      return;
+    }
+
+    status.textContent = 'Loading site photos...';
+    grid.innerHTML = '';
+    fetch('https://api.github.com/repos/' + this.siteGallery.repo + '/contents/' + this.siteGallery.path)
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(files => {
+        const imgs = (Array.isArray(files) ? files : []).filter(f =>
+          f.type === 'file' && /\.(jpe?g|png|gif|webp)$/i.test(f.name));
+        this.siteGallery.cache = imgs;
+        this.renderGalleryPicker(imgs);
+      })
+      .catch(() => {
+        status.textContent = 'No site photos yet. Upload images to the assets/photos folder in your GitHub repo, then reopen this picker.';
+      });
+  },
+
+  renderGalleryPicker(imgs) {
+    const grid = document.getElementById('gallery-picker-grid');
+    const status = document.getElementById('gallery-picker-status');
+    if (!imgs.length) {
+      status.textContent = 'No site photos yet. Upload images to the assets/photos folder in your GitHub repo, then reopen this picker.';
+      grid.innerHTML = '';
+      return;
+    }
+    status.textContent = 'Tap a photo to use it:';
+    grid.innerHTML = '';
+    imgs.forEach(f => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'gallery-pick-item';
+      btn.title = f.name;
+      const img = document.createElement('img');
+      img.src = f.download_url;
+      img.alt = f.name;
+      img.loading = 'lazy';
+      img.referrerPolicy = 'no-referrer';
+      btn.appendChild(img);
+      btn.addEventListener('click', () => this.pickGalleryPhoto(f.download_url));
+      grid.appendChild(btn);
+    });
+  },
+
+  pickGalleryPhoto(url) {
+    const slot = this.siteGallery.pendingSlot;
+    if (slot === null || slot === undefined) return;
+    const urlInput = document.querySelector(`.photo-url-input[data-slot="${slot}"]`);
+    if (urlInput) urlInput.value = url;
+    this.handlePhotoUrlInput(url, slot);
+    document.getElementById('gallery-picker').style.display = 'none';
+  },
+
   // Set message mode
   setMessageMode(mode) {
     this.state.messageMode = mode;
@@ -320,11 +403,20 @@ const App = {
     });
   },
 
+  // Site gallery config: photos uploaded to this folder in the repo
+  // are listed for picking and always display in the final gift.
+  siteGallery: {
+    repo: 'Elhendawy-1/Surprise',
+    path: 'assets/photos',
+    cache: null,
+    pendingSlot: null
+  },
+
   // Get per-slot URL pasted by user (preserves slot index)
   getUrlForSlot(i) {
     const input = document.querySelector(`.photo-url-input[data-slot="${i}"]`);
     if (!input) return '';
-    const val = input.value.trim();
+    const val = Share.normalizeImageUrl(input.value);
     if (val && (val.startsWith('http://') || val.startsWith('https://'))) {
       return val;
     }

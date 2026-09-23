@@ -79,7 +79,14 @@
 
         <div class="form-group">
           <label>Photos (optional) - Add up to 5 images</label>
-          <p class="form-hint">Upload a file OR paste a <strong>direct image link</strong> (must open the image itself, e.g. i.imgur.com/...jpg). A gallery/album page link will not display. Add your caption under each photo.</p>
+          <p class="form-hint">3 ways to add a photo: upload a file, paste a <strong>direct image link</strong> (must open the image itself, e.g. i.imgur.com/...jpg — an album page link will not display), or pick from the <strong>site gallery</strong> (upload images to the <strong>assets/photos</strong> folder in your GitHub repo — those always show in the final gift). Add your caption under each photo.</p>
+          <div class="gallery-picker" id="gallery-picker" style="display:none;">
+            <div class="gallery-picker-header">
+              <span id="gallery-picker-status">Site photos</span>
+              <button type="button" id="gallery-picker-close" class="btn-remove">&times;</button>
+            </div>
+            <div class="gallery-picker-grid" id="gallery-picker-grid"></div>
+          </div>
           <div class="photos-grid" id="photos-grid">
             <div class="photo-slot" data-slot="0">
               <div class="photo-upload-area" id="photo-upload-area-0">
@@ -94,6 +101,7 @@
                 </div>
               </div>
               <input type="text" class="photo-url-input" data-slot="0" placeholder="Or paste image URL here">
+              <button type="button" class="photo-gallery-btn" data-slot="0">🖼 Choose from site gallery</button>
               <input type="text" class="photo-text-input" data-slot="0" placeholder="Caption (optional)">
             </div>
             <div class="photo-slot" data-slot="1">
@@ -109,6 +117,7 @@
                 </div>
               </div>
               <input type="text" class="photo-url-input" data-slot="1" placeholder="Or paste image URL here">
+              <button type="button" class="photo-gallery-btn" data-slot="1">🖼 Choose from site gallery</button>
               <input type="text" class="photo-text-input" data-slot="1" placeholder="Caption (optional)">
             </div>
             <div class="photo-slot" data-slot="2">
@@ -124,6 +133,7 @@
                 </div>
               </div>
               <input type="text" class="photo-url-input" data-slot="2" placeholder="Or paste image URL here">
+              <button type="button" class="photo-gallery-btn" data-slot="2">🖼 Choose from site gallery</button>
               <input type="text" class="photo-text-input" data-slot="2" placeholder="Caption (optional)">
             </div>
             <div class="photo-slot" data-slot="3">
@@ -139,6 +149,7 @@
                 </div>
               </div>
               <input type="text" class="photo-url-input" data-slot="3" placeholder="Or paste image URL here">
+              <button type="button" class="photo-gallery-btn" data-slot="3">🖼 Choose from site gallery</button>
               <input type="text" class="photo-text-input" data-slot="3" placeholder="Caption (optional)">
             </div>
             <div class="photo-slot" data-slot="4">
@@ -154,6 +165,7 @@
                 </div>
               </div>
               <input type="text" class="photo-url-input" data-slot="4" placeholder="Or paste image URL here">
+              <button type="button" class="photo-gallery-btn" data-slot="4">🖼 Choose from site gallery</button>
               <input type="text" class="photo-text-input" data-slot="4" placeholder="Caption (optional)">
             </div>
           </div>
