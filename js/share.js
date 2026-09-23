@@ -177,14 +177,15 @@ const Share = {
   // Convert GitHub page/blob links into direct raw image links
   normalizeImageUrl(url) {
     if (!url) return '';
-    let u = url.trim();
+    // Strip query string and hash (e.g. ?raw=true) before matching
+    let u = url.trim().split('?')[0].split('#')[0];
     // https://github.com/OWNER/REPO/blob/BRANCH/PATH -> raw link
-    let m = u.match(/^https?:\/\/github\.com\/([^/]+\/[^/]+)\/blob\/([^/]+)\/(.+)$/);
+    let m = u.match(/^https?:\/\/(?:www\.)?github\.com\/([^/]+\/[^/]+)\/blob\/([^/]+)\/(.+)$/);
     if (m) return 'https://raw.githubusercontent.com/' + m[1] + '/' + m[2] + '/' + m[3];
     // https://github.com/OWNER/REPO/raw/BRANCH/PATH -> raw link
-    m = u.match(/^https?:\/\/github\.com\/([^/]+\/[^/]+)\/raw\/([^/]+)\/(.+)$/);
+    m = u.match(/^https?:\/\/(?:www\.)?github\.com\/([^/]+\/[^/]+)\/raw\/([^/]+)\/(.+)$/);
     if (m) return 'https://raw.githubusercontent.com/' + m[1] + '/' + m[2] + '/' + m[3];
-    return u;
+    return url.trim();
   },
 
   encodeData(data) {

@@ -213,16 +213,9 @@
   animation: unfold 0.8s ease 0.3s forwards;
 }
 
-.recipient-gallery-item {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.recipient-gallery-item.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+/* NOTE: .recipient-gallery-item base styles live in styles.css (single source).
+   Do not duplicate them here - this file loads last and would override the
+   smooth reveal transition. */
 
 .recipient-closing {
   opacity: 0;

@@ -164,6 +164,9 @@ const Animations = {
   startHeroAnimation() {
     const heroHearts = document.getElementById('hero-hearts');
     if (heroHearts) {
+      // Stop any previous heart loops first (e.g. after "Create Another Gift")
+      // so intervals don't pile up.
+      this.stopFloatingHearts();
       this.startFloatingHearts(heroHearts, 600);
     }
   }

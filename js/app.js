@@ -522,8 +522,6 @@ const App = {
 
   // Generate share link
   async generateLink() {
-    const data = this.collectData();
-
     // Show loading
     document.getElementById('loading-overlay').style.display = 'flex';
 
@@ -586,9 +584,10 @@ const App = {
   // Render recipient view into a container (used for Preview)
   renderRecipientView(containerId, data) {
     const container = document.getElementById(containerId);
-    const greeting = Generator.getGreeting(data);
-    const footer = Generator.getFooter(data);
-    const details = Generator.getOccasionDetails(data);
+    const greeting = this.escapeHtml(Generator.getGreeting(data));
+    const footer = this.escapeHtml(Generator.getFooter(data));
+    const details = this.escapeHtml(Generator.getOccasionDetails(data));
+    const safeMessage = this.escapeHtml(data.message);
     const photos = data.photoUrls || [];
     const photoTexts = data.photoTexts || [];
 
@@ -630,7 +629,7 @@ const App = {
     }
 
     // Message
-    html += `<div style="font-family: var(--font-body); font-size: 1.1rem; line-height: 1.8; color: var(--text); max-width: 500px; margin: 0 auto 2rem; white-space: pre-wrap; opacity: 0; animation: fadeInUp 0.8s ease 0.6s forwards;">${data.message}</div>`;
+    html += `<div style="font-family: var(--font-body); font-size: 1.1rem; line-height: 1.8; color: var(--text); max-width: 500px; margin: 0 auto 2rem; white-space: pre-wrap; opacity: 0; animation: fadeInUp 0.8s ease 0.6s forwards;">${safeMessage}</div>`;
 
     // Footer
     html += `<div style="font-size: 0.95rem; color: var(--text-light); font-style: italic; opacity: 0; animation: fadeIn 0.8s ease 1s forwards;">${footer}</div>`;
@@ -699,7 +698,7 @@ const App = {
     }
 
     // Greeting
-    document.getElementById('recipient-greeting').innerHTML = greeting;
+    document.getElementById('recipient-greeting').textContent = greeting;
 
     // Gallery section (if more than 1 photo)
     if (photos.length > 1) {
@@ -731,22 +730,37 @@ const App = {
     }
 
     // Message
-    document.getElementById('recipient-message').innerHTML = data.message;
-    document.getElementById('recipient-footer').innerHTML = Generator.getFooter(data);
+    document.getElementById('recipient-message').textContent = data.message;
+    document.getElementById('recipient-footer').textContent = Generator.getFooter(data);
 
-    // Occasion details
+    // Birthday details
     const details = Generator.getOccasionDetails(data);
     if (details) {
       document.getElementById('recipient-details').style.display = 'block';
       document.getElementById('recipient-details-content').innerHTML = `
         <div class="detail-label">Special Details</div>
-        <div class="detail-value">${details}</div>
+        <div class="detail-value"></div>
       `;
+      document.querySelector('#recipient-details-content .detail-value').textContent = details;
     }
 
-    // Show music controls if music enabled
+    // Show music controls if music enabled and the file actually loads
     if (data.music !== false) {
-      document.getElementById('music-controls').style.display = 'block';
+      const musicEl = document.getElementById('bg-music');
+      const showControls = () => {
+        document.getElementById('music-controls').style.display = 'block';
+      };
+      // If the audio file is missing (404), keep controls hidden
+      const audioSource = musicEl.querySelector('source');
+      if (audioSource) {
+        audioSource.addEventListener('error', () => {
+          document.getElementById('music-controls').style.display = 'none';
+        }, { once: true });
+      }
+      musicEl.addEventListener('error', () => {
+        document.getElementById('music-controls').style.display = 'none';
+      }, { once: true });
+      showControls();
       // Auto-play after user interaction
       document.addEventListener('click', () => {
         const music = document.getElementById('bg-music');
@@ -852,6 +866,9 @@ const App = {
     // Remove any dynamically added captions
     const mainCaption = document.getElementById('recipient-main-caption');
     if (mainCaption) mainCaption.remove();
+
+    // Restore default theme on the page
+    document.documentElement.setAttribute('data-theme', 'classic');
 
     Animations.startHeroAnimation();
   }
