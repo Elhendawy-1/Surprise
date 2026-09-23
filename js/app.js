@@ -594,39 +594,30 @@ const App = {
     let html = '';
     html += '<div style="text-align:center; padding: 2rem;">';
 
-    // Main photo (first one) + caption
-    if (photos.length > 0) {
-      html += '<div style="margin-bottom: 2rem; opacity: 0; animation: scaleIn 0.6s ease 0.1s forwards;">';
-      html += `<img src="${photos[0]}" alt="${this.escapeHtml(data.name)}" referrerpolicy="no-referrer" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 4px solid var(--accent); box-shadow: 0 5px 25px var(--shadow-lg);" onerror="this.style.display='none'">`;
-      if (photoTexts[0]) {
-        html += `<div style="font-style: italic; color: var(--text-light); margin-top: 0.75rem;">${this.escapeHtml(photoTexts[0])}</div>`;
-      }
-      html += '</div>';
-    } else {
-      html += '<div style="margin-bottom: 1.5rem; padding: 1rem; border: 1px dashed var(--card-border); border-radius: 12px; color: var(--text-light); font-size: 0.9rem;">No photos added yet — add a file or paste an image URL above to see it here.</div>';
-    }
-
     // Greeting
     html += `<div class="recipient-greeting" style="font-family: var(--font-script); font-size: 2.5rem; margin-bottom: 1.5rem; opacity: 0; animation: fadeInUp 0.8s ease 0.3s forwards;">${greeting}</div>`;
 
-    // Occasion details
+    // Birthday details
     if (details) {
       html += `<div style="font-size: 1rem; color: var(--text-light); margin-bottom: 1.5rem; opacity: 0; animation: fadeInUp 0.6s ease 0.5s forwards;">${details}</div>`;
     }
 
-    // Additional photos (if more than 1) + captions
-    if (photos.length > 1) {
+    // Chosen photos with captions, right before the message
+    if (photos.length > 0) {
       html += '<div style="font-family: var(--font-script); font-size: 1.8rem; margin-bottom: 1rem; opacity: 0; animation: fadeInUp 0.6s ease 0.5s forwards;">Sweet Memories</div>';
-      html += '<div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 2rem;">';
-      for (let i = 1; i < photos.length; i++) {
-        html += `<div style="opacity: 0; animation: scaleIn 0.5s ease ${0.5 + i * 0.2}s forwards; max-width: 160px;">`;
-        html += `<img src="${photos[i]}" alt="" referrerpolicy="no-referrer" style="width: 150px; height: 150px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 15px var(--shadow);" onerror="this.parentNode.style.display='none'">`;
+      html += '<div style="display: flex; flex-direction: column; gap: 1.25rem; align-items: center; margin-bottom: 2rem;">';
+      for (let i = 0; i < photos.length; i++) {
+        if (!photos[i]) continue;
+        html += `<div style="opacity: 0; animation: scaleIn 0.5s ease ${0.5 + i * 0.2}s forwards; max-width: 280px; width: 100%;">`;
+        html += `<img src="${photos[i]}" alt="Memory ${i + 1}" referrerpolicy="no-referrer" style="width: 100%; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 15px var(--shadow);" onerror="this.parentNode.style.display='none'">`;
         if (photoTexts[i]) {
-          html += `<div style="font-size: 0.8rem; color: var(--text-light); font-style: italic; margin-top: 0.4rem;">${this.escapeHtml(photoTexts[i])}</div>`;
+          html += `<div style="font-size: 0.85rem; color: var(--text-light); font-style: italic; margin-top: 0.4rem;">${this.escapeHtml(photoTexts[i])}</div>`;
         }
         html += '</div>';
       }
       html += '</div>';
+    } else {
+      html += '<div style="margin-bottom: 1.5rem; padding: 1rem; border: 1px dashed var(--card-border); border-radius: 12px; color: var(--text-light); font-size: 0.9rem;">No photos added yet — add a file or paste an image URL above to see it here.</div>';
     }
 
     // Message
@@ -673,45 +664,21 @@ const App = {
     const photos = data.photoUrls || [];
     const photoTexts = data.photoTexts || [];
 
-    // Main photo (first one)
-    if (photos.length > 0 && photos[0]) {
-      const mainPhoto = document.getElementById('recipient-main-photo');
-      const mainPhotoImg = document.getElementById('recipient-main-photo-img');
-      mainPhoto.style.display = 'block';
-      mainPhotoImg.setAttribute('referrerpolicy', 'no-referrer');
-      mainPhotoImg.onerror = () => { mainPhoto.style.display = 'none'; };
-      mainPhotoImg.src = photos[0];
-
-      // Add text under main photo if exists
-      let mainCaption = document.getElementById('recipient-main-caption');
-      if (photoTexts[0]) {
-        if (!mainCaption) {
-          mainCaption = document.createElement('div');
-          mainCaption.id = 'recipient-main-caption';
-          mainCaption.className = 'photo-caption';
-          mainPhoto.parentNode.insertBefore(mainCaption, mainPhoto.nextSibling);
-        }
-        mainCaption.textContent = photoTexts[0];
-        mainCaption.style.display = 'block';
-      } else if (mainCaption) {
-        mainCaption.style.display = 'none';
-      }
-    }
-
     // Greeting
     document.getElementById('recipient-greeting').textContent = greeting;
 
-    // Gallery section (if more than 1 photo)
-    if (photos.length > 1) {
+    // Photo memories lane - ALL chosen photos with captions,
+    // placed right before the birthday message
+    if (photos.length > 0) {
       document.getElementById('recipient-gallery').style.display = 'block';
       const galleryGrid = document.getElementById('recipient-gallery-grid');
       let galleryHtml = '';
 
-      for (let i = 1; i < photos.length; i++) {
+      for (let i = 0; i < photos.length; i++) {
         if (!photos[i]) continue;
-        const delay = (i - 1) * 140;
+        const delay = i * 140;
         galleryHtml += `<div class="recipient-gallery-item" data-index="${i}" style="transition-delay:${delay}ms">`;
-        galleryHtml += `<img src="${photos[i]}" alt="Memory ${i}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.style.display='none'">`;
+        galleryHtml += `<img src="${photos[i]}" alt="Memory ${i + 1}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.style.display='none'">`;
         if (photoTexts[i]) {
           galleryHtml += `<div class="gallery-item-text">${this.escapeHtml(photoTexts[i])}</div>`;
         }
