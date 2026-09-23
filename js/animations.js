@@ -246,13 +246,63 @@ const Animations = {
     }
   },
 
+  // Rising balloons (birthday touch) - slow and smooth
+  riseBalloon(container) {
+    const b = document.createElement('span');
+    b.className = 'floating-heart';
+    b.textContent = this.pick(['🎈', '🎈', '🎈', '🎉', '🎊', '✨']);
+    const riseTime = Math.random() * 5 + 9; // 9-14s slow rise
+    b.style.left = (Math.random() * 90 + 5) + 'vw';
+    b.style.fontSize = (Math.random() * 0.9 + 1.8) + 'rem';
+    b.style.opacity = (Math.random() * 0.3 + 0.65).toFixed(2);
+    b.style.animationDuration = riseTime + 's, 4s';
+
+    (container || document.body).appendChild(b);
+    b.addEventListener('animationend', (e) => {
+      if (e.animationName === 'floatUp') b.remove();
+    });
+    setTimeout(() => b.remove(), (riseTime + 1) * 1000);
+    return b;
+  },
+
+  startBalloonDrift(container, interval = 5200) {
+    const id = setInterval(() => this.riseBalloon(container), interval);
+    this.hearts.push(id);
+    return id;
+  },
+
+  // Confetti rain right when the gift opens
+  confettiShower(container, count = 90, durationMs = 5500) {
+    if (this.calmMode()) return;
+    const host = container || document.body;
+    const colors = ['#e63946', '#ffd700', '#f8a4c8', '#d4af37', '#c9a0dc', '#ffffff', '#ff6b6b'];
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const c = document.createElement('span');
+        c.className = 'confetti-piece';
+        const size = Math.random() * 6 + 5;
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.width = size + 'px';
+        c.style.height = (size * (Math.random() * 0.6 + 0.5)) + 'px';
+        c.style.background = this.pick(colors);
+        c.style.setProperty('--dx', Math.round((Math.random() - 0.5) * 160) + 'px');
+        c.style.animationDuration = (Math.random() * 1.8 + 2.6).toFixed(2) + 's';
+        host.appendChild(c);
+        c.addEventListener('animationend', () => c.remove());
+        setTimeout(() => c.remove(), 6000);
+      }, Math.random() * durationMs);
+    }
+  },
+
   // Full opening celebration for the gift page:
-  // burst + petal shower, then calm ambient hearts + drifting petals
+  // burst + long petal shower + confetti, then calm ambient drift
   startCelebration(container) {
-    this.celebrationBurst(container);
-    this.petalShower(container, 6500, 300);
-    this.startFloatingHearts(container, 1400);
-    this.startPetalDrift(container, 2800);
+    this.celebrationBurst(container, 64);
+    this.petalShower(container, 14000, 260);
+    this.confettiShower(container, 90, 5000);
+    this.startFloatingHearts(container, 1300);
+    this.startPetalDrift(container, 2600);
+    this.startBalloonDrift(container, 5200);
   }
 };
 

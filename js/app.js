@@ -838,12 +838,14 @@ const App = {
         document.getElementById('music-controls').style.display = 'none';
       }, { once: true });
       showControls();
+      document.getElementById('btn-music-toggle').classList.add('play-hint');
       // Auto-play after user interaction
       document.addEventListener('click', () => {
         const music = document.getElementById('bg-music');
         if (music && music.paused) {
           music.play().catch(() => {});
           document.getElementById('btn-music-toggle').textContent = '\u266B';
+          document.getElementById('btn-music-toggle').classList.remove('play-hint');
         }
       }, { once: true });
     }
@@ -901,6 +903,7 @@ const App = {
     if (music.paused) {
       music.play().then(() => {
         btn.textContent = '\u266B';
+        btn.classList.remove('play-hint');
       }).catch(() => {});
     } else {
       music.pause();
