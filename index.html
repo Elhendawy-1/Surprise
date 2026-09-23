@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Send Love & Warmth</title>
-  <link rel="stylesheet" href="css/themes.css?v=8">
-  <link rel="stylesheet" href="css/styles.css?v=8">
-  <link rel="stylesheet" href="css/animations.css?v=8">
+  <link rel="stylesheet" href="css/themes.css?v=9">
+  <link rel="stylesheet" href="css/styles.css?v=9">
+  <link rel="stylesheet" href="css/animations.css?v=9">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:wght@400;500;600&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -36,26 +36,37 @@
           <span class="card-icon">&#127801;</span>
           <span class="card-label">Mom</span>
         </button>
-        <button class="card" data-relationship="sister">
-          <span class="card-icon">&#127800;</span>
-          <span class="card-label">Sister</span>
-        </button>
-        <button class="card" data-relationship="aunt">
-          <span class="card-icon">&#127799;</span>
-          <span class="card-label">Aunt</span>
-        </button>
         <button class="card" data-relationship="dad">
           <span class="card-icon">&#127775;</span>
           <span class="card-label">Dad</span>
         </button>
-        <button class="card" data-relationship="friend">
-          <span class="card-icon">&#128149;</span>
-          <span class="card-label">Friend</span>
+        <button class="card" data-relationship="sister">
+          <span class="card-icon">&#127800;</span>
+          <span class="card-label">Sister</span>
         </button>
         <button class="card" data-relationship="brother">
           <span class="card-icon">&#128102;</span>
           <span class="card-label">Brother</span>
         </button>
+        <button class="card" data-relationship="aunt">
+          <span class="card-icon">&#127799;</span>
+          <span class="card-label">Aunt</span>
+        </button>
+        <button class="card" data-relationship="friend">
+          <span class="card-icon">&#128149;</span>
+          <span class="card-label">Friend</span>
+        </button>
+        <button class="card" data-relationship="other">
+          <span class="card-icon">&#10024;</span>
+          <span class="card-label">Other</span>
+        </button>
+      </div>
+      <div class="custom-relationship-wrap" id="custom-relationship-wrap" style="display:none;">
+        <label for="custom-relationship">Who is this gift for?</label>
+        <div class="custom-relationship-row">
+          <input type="text" id="custom-relationship" placeholder="e.g., Grandma, Cousin, Teacher..." maxlength="30">
+          <button type="button" id="btn-custom-continue" class="btn-primary">Continue</button>
+        </div>
       </div>
     </div>
   </section>
@@ -334,6 +345,9 @@
     <button id="btn-music-toggle" class="btn-music" title="Play/Pause Music">&#128264;</button>
   </div>
 
+  <!-- Tap-to-play music prompt (browsers block autoplay until a tap) -->
+  <button id="music-prompt" class="music-prompt" style="display:none;">&#127925; Tap to play music</button>
+
   <!-- Loading Overlay -->
   <div class="loading-overlay" id="loading-overlay" style="display:none;">
     <div class="loading-spinner"></div>
@@ -341,9 +355,9 @@
     <p class="loading-sub" id="loading-status"></p>
   </div>
 
-  <script src="js/animations.js?v=8"></script>
-  <script src="js/generator.js?v=8"></script>
-  <script src="js/share.js?v=8"></script>
-  <script src="js/app.js?v=8"></script>
+  <script src="js/animations.js?v=9"></script>
+  <script src="js/generator.js?v=9"></script>
+  <script src="js/share.js?v=9"></script>
+  <script src="js/app.js?v=9"></script>
 </body>
 </html>

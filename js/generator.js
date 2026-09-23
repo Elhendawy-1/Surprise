@@ -8,7 +8,8 @@ const Generator = {
     aunt: "Happy Birthday, {name}! You're not just an aunt, you're a second mom, a mentor, and a friend. Your love and guidance have meant so much to me over the years. Wishing you a day as special as you are!",
     dad: "Happy Birthday, {name}! You've been my hero since day one. Your strength, wisdom, and unconditional love have guided me through life. Today, I celebrate you and all that you are. I love you!",
     friend: "Happy Birthday, {name}! Friends like you are rare and precious. Thank you for all the laughs, the support, and the unforgettable moments. Here's to another amazing year of friendship!",
-    brother: "Happy Birthday, {name}! Having a brother like you is one of life's greatest gifts. Through every laugh, every adventure, and every challenge, you've been right there beside me. May your day be as awesome as you are!"
+    brother: "Happy Birthday, {name}! Having a brother like you is one of life's greatest gifts. Through every laugh, every adventure, and every challenge, you've been right there beside me. May your day be as awesome as you are!",
+    other: "Happy Birthday, {name}! Today is all about you. Thank you for being such a special part of my life - your kindness, laughter, and warmth mean more than you know. May this year bring you everything you deserve and more!"
   },
 
   // Generate a birthday message based on data
@@ -32,7 +33,8 @@ const Generator = {
       aunt: `Happy Birthday, ${name}!`,
       dad: `Happy Birthday, ${name}!`,
       friend: `Happy Birthday, ${name}!`,
-      brother: `Happy Birthday, ${name}!`
+      brother: `Happy Birthday, ${name}!`,
+      other: `Happy Birthday, ${name}!`
     };
 
     return greetings[relationship] || `Happy Birthday, ${name}!`;
@@ -47,7 +49,8 @@ const Generator = {
       aunt: "With love and gratitude",
       dad: "With all my love, your child",
       friend: "With love, your friend",
-      brother: "With love, your sibling"
+      brother: "With love, your sibling",
+      other: "With lots of love"
     };
     return footers[relationship] || "With love";
   },

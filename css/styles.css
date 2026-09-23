@@ -997,6 +997,68 @@ body {
   transform: scale(1.1);
 }
 
+/* Tap-to-play music prompt on the gift page */
+.music-prompt {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  border: none;
+  border-radius: 50px;
+  padding: 0.85rem 1.8rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--gradient);
+  box-shadow: 0 4px 20px var(--shadow-lg);
+  cursor: pointer;
+  animation: musicInvite 2s ease infinite;
+}
+
+/* Custom relationship input */
+.custom-relationship-wrap {
+  max-width: 500px;
+  margin: 1.5rem auto 0;
+  text-align: left;
+}
+
+.custom-relationship-wrap label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.custom-relationship-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.custom-relationship-row input {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--card-border);
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  background: var(--card-bg);
+  color: var(--text);
+}
+
+.custom-relationship-row input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--shadow);
+}
+
+.custom-relationship-row .btn-primary {
+  padding: 0.85rem 1.5rem;
+  white-space: nowrap;
+}
+
 /* ===== Loading Overlay ===== */
 .loading-overlay {
   position: fixed;
@@ -1099,6 +1161,16 @@ body {
 
   .photos-grid {
     grid-template-columns: 1fr;
+  }
+
+  .custom-relationship-row {
+    flex-direction: column;
+  }
+
+  .music-prompt {
+    bottom: 1rem;
+    padding: 0.75rem 1.4rem;
+    font-size: 0.9rem;
   }
 
   .recipient-gallery-item img,

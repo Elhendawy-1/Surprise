@@ -5,6 +5,7 @@ const App = {
   state: {
     currentSection: 'hero',
     relationship: null,
+    customRelationship: '',
     occasion: 'birthday',
     name: '',
     fields: {},
@@ -52,6 +53,17 @@ const App = {
       const card = e.target.closest('.card');
       if (!card) return;
       this.selectRelationship(card.dataset.relationship);
+    });
+
+    // Custom relationship continue + Enter key
+    document.getElementById('btn-custom-continue').addEventListener('click', () => {
+      this.confirmCustomRelationship();
+    });
+    document.getElementById('custom-relationship').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.confirmCustomRelationship();
+      }
     });
 
     // Photo uploads - multiple slots
@@ -212,6 +224,16 @@ const App = {
       card.classList.toggle('selected', card.dataset.relationship === relationship);
     });
 
+    // "Other" needs a custom label first
+    const customWrap = document.getElementById('custom-relationship-wrap');
+    if (relationship === 'other') {
+      customWrap.style.display = 'block';
+      const input = document.getElementById('custom-relationship');
+      if (input) input.focus();
+      return;
+    }
+    customWrap.style.display = 'none';
+
     // Generate auto message
     this.updateAutoMessage();
 
@@ -219,6 +241,21 @@ const App = {
     setTimeout(() => {
       this.showSection('customize');
     }, 300);
+  },
+
+  // Continue after typing a custom relationship (Other)
+  confirmCustomRelationship() {
+    const input = document.getElementById('custom-relationship');
+    const label = input ? input.value.trim() : '';
+    if (!label) {
+      alert('Please type who this gift is for (e.g., Grandma, Cousin, Teacher).');
+      if (input) input.focus();
+      return;
+    }
+    this.state.customRelationship = label;
+    document.getElementById('custom-relationship-wrap').style.display = 'none';
+    this.updateAutoMessage();
+    this.showSection('customize');
   },
 
   // Handle photo upload for specific slot
@@ -493,6 +530,9 @@ const App = {
 
     return {
       relationship: this.state.relationship,
+      customRelationship: this.state.relationship === 'other'
+        ? (this.state.customRelationship || document.getElementById('custom-relationship')?.value.trim() || 'Loved One')
+        : '',
       occasion: 'birthday',
       name: name,
       fields: { dob },
@@ -821,33 +861,41 @@ const App = {
       document.querySelector('#recipient-details-content .detail-value').textContent = details;
     }
 
-    // Show music controls if music enabled and the file actually loads
+    // Music: browsers block autoplay, so show a clear tap-to-play
+    // prompt. The first tap starts the song for sure.
     if (data.music !== false) {
       const musicEl = document.getElementById('bg-music');
-      const showControls = () => {
-        document.getElementById('music-controls').style.display = 'block';
+      const prompt = document.getElementById('music-prompt');
+      const hideMusicUi = () => {
+        document.getElementById('music-controls').style.display = 'none';
+        if (prompt) prompt.style.display = 'none';
       };
-      // If the audio file is missing (404), keep controls hidden
+      // If the audio file is missing (404), keep music UI hidden
       const audioSource = musicEl.querySelector('source');
       if (audioSource) {
-        audioSource.addEventListener('error', () => {
-          document.getElementById('music-controls').style.display = 'none';
-        }, { once: true });
+        audioSource.addEventListener('error', hideMusicUi, { once: true });
       }
-      musicEl.addEventListener('error', () => {
-        document.getElementById('music-controls').style.display = 'none';
-      }, { once: true });
-      showControls();
+      musicEl.addEventListener('error', hideMusicUi, { once: true });
+
+      const startMusic = () => {
+        musicEl.play().then(() => {
+          if (prompt) prompt.style.display = 'none';
+          document.getElementById('music-controls').style.display = 'block';
+          const toggle = document.getElementById('btn-music-toggle');
+          toggle.textContent = '\u266B';
+          toggle.classList.remove('play-hint');
+        }).catch(() => {});
+      };
+
+      if (prompt) {
+        prompt.style.display = 'block';
+        prompt.onclick = startMusic;
+      } else {
+        document.getElementById('music-controls').style.display = 'block';
+      }
       document.getElementById('btn-music-toggle').classList.add('play-hint');
-      // Auto-play after user interaction
-      document.addEventListener('click', () => {
-        const music = document.getElementById('bg-music');
-        if (music && music.paused) {
-          music.play().catch(() => {});
-          document.getElementById('btn-music-toggle').textContent = '\u266B';
-          document.getElementById('btn-music-toggle').classList.remove('play-hint');
-        }
-      }, { once: true });
+      // Fallback: any first tap anywhere also starts the music
+      document.addEventListener('click', startMusic, { once: true });
     }
 
     // Opening celebration: heart + flower burst, petal shower,
@@ -916,6 +964,7 @@ const App = {
     this.state = {
       currentSection: 'hero',
       relationship: null,
+      customRelationship: '',
       occasion: 'birthday',
       name: '',
       fields: {},
@@ -932,6 +981,8 @@ const App = {
 
     // Reset UI
     document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
+    document.getElementById('custom-relationship-wrap').style.display = 'none';
+    document.getElementById('custom-relationship').value = '';
     document.querySelectorAll('.theme-swatch.active').forEach(s => {
       s.classList.remove('active');
       if (s.dataset.theme === 'classic') s.classList.add('active');
