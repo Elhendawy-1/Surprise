@@ -247,6 +247,20 @@
   50% { box-shadow: 0 4px 26px var(--shadow-lg), 0 0 0 8px var(--shadow); }
 }
 
+/* Candle flame flicker */
+@keyframes flameFlicker {
+  0%, 100% { transform: translateX(-50%) scale(1) skewX(0deg); }
+  30% { transform: translateX(-50%) scale(1.06, 1.12) skewX(2deg); }
+  60% { transform: translateX(-50%) scale(0.94, 0.9) skewX(-3deg); }
+}
+
+/* Smoke puff rising from a blown-out candle */
+@keyframes smokeRise {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.6); }
+  25% { opacity: 0.7; }
+  100% { opacity: 0; transform: translate(calc(-50% + 10px), -46px) scale(1.4); }
+}
+
 .btn-music.play-hint {
   animation: musicInvite 2s ease infinite;
 }

@@ -843,6 +843,9 @@ const App = {
       galleryGrid.innerHTML = galleryHtml;
     }
 
+    // Interactive birthday cake (tap candles to blow them out)
+    this.setupCake();
+
     // Smooth scroll-triggered reveals for the whole gift page
     setTimeout(() => {
       this.setupScrollReveals();
@@ -970,6 +973,42 @@ const App = {
     };
     const timer = setInterval(update, 1000);
     update();
+  },
+
+  // Interactive birthday cake: tap a candle (or the button)
+  // to blow it out with a smoke puff. All out = wish + confetti.
+  setupCake() {
+    const row = document.getElementById('candles-row');
+    if (!row || row.dataset.wired) return;
+    row.dataset.wired = '1';
+    const candles = Array.from(row.querySelectorAll('.candle'));
+    const wish = document.getElementById('wish-text');
+    const blowBtn = document.getElementById('btn-blow');
+    const relightBtn = document.getElementById('btn-relight');
+    const host = document.getElementById('recipient-view');
+
+    const blowOne = (c) => {
+      if (c.classList.contains('out')) return;
+      c.classList.add('out');
+      if (row.querySelectorAll('.candle:not(.out)').length === 0) {
+        wish.style.display = 'block';
+        blowBtn.style.display = 'none';
+        relightBtn.style.display = 'inline-block';
+        Animations.confettiShower(host, 70, 3500);
+        Animations.celebrationBurst(host, 24);
+      }
+    };
+
+    candles.forEach(c => c.addEventListener('click', () => blowOne(c)));
+    blowBtn.addEventListener('click', () => {
+      candles.forEach((c, i) => setTimeout(() => blowOne(c), i * 200));
+    });
+    relightBtn.addEventListener('click', () => {
+      candles.forEach(c => c.classList.remove('out'));
+      wish.style.display = 'none';
+      relightBtn.style.display = 'none';
+      blowBtn.style.display = 'inline-block';
+    });
   },
 
   // Smooth scroll-triggered reveals for the gift page:

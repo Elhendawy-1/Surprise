@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Send Love & Warmth</title>
-  <link rel="stylesheet" href="css/themes.css?v=11">
-  <link rel="stylesheet" href="css/styles.css?v=11">
-  <link rel="stylesheet" href="css/animations.css?v=11">
+  <link rel="stylesheet" href="css/themes.css?v=12">
+  <link rel="stylesheet" href="css/styles.css?v=12">
+  <link rel="stylesheet" href="css/animations.css?v=12">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:wght@400;500;600&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -304,6 +304,31 @@
       </div>
     </div>
 
+    <!-- Birthday Cake Section -->
+    <div class="recipient-section recipient-cake-section">
+      <div class="cake-wrap reveal">
+        <h3 class="cake-heading">Make a Wish</h3>
+        <p class="cake-sub">Tap the candles to blow them out</p>
+        <div class="cake-scene">
+          <div class="candles-row" id="candles-row">
+            <button type="button" class="candle" aria-label="Blow out candle"><span class="flame"></span><span class="smoke"></span><span class="wick"></span><span class="stick"></span></button>
+            <button type="button" class="candle" aria-label="Blow out candle"><span class="flame"></span><span class="smoke"></span><span class="wick"></span><span class="stick"></span></button>
+            <button type="button" class="candle" aria-label="Blow out candle"><span class="flame"></span><span class="smoke"></span><span class="wick"></span><span class="stick"></span></button>
+            <button type="button" class="candle" aria-label="Blow out candle"><span class="flame"></span><span class="smoke"></span><span class="wick"></span><span class="stick"></span></button>
+            <button type="button" class="candle" aria-label="Blow out candle"><span class="flame"></span><span class="smoke"></span><span class="wick"></span><span class="stick"></span></button>
+          </div>
+          <div class="cake-top"></div>
+          <div class="cake-body"></div>
+          <div class="cake-plate"></div>
+        </div>
+        <div class="wish-text" id="wish-text" style="display:none;">Your wish is on its way ✨</div>
+        <div class="cake-actions">
+          <button type="button" id="btn-blow" class="btn-primary">Blow Out the Candles</button>
+          <button type="button" id="btn-relight" class="btn-secondary" style="display:none;">Relight Candles</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Photo Memories Section -->
     <div class="recipient-section recipient-gallery-section" id="recipient-gallery" style="display:none;">
       <div class="recipient-gallery-wrap">
@@ -355,9 +380,9 @@
     <p class="loading-sub" id="loading-status"></p>
   </div>
 
-  <script src="js/animations.js?v=11"></script>
-  <script src="js/generator.js?v=11"></script>
-  <script src="js/share.js?v=11"></script>
-  <script src="js/app.js?v=11"></script>
+  <script src="js/animations.js?v=12"></script>
+  <script src="js/generator.js?v=12"></script>
+  <script src="js/share.js?v=12"></script>
+  <script src="js/app.js?v=12"></script>
 </body>
 </html>
