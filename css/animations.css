@@ -345,3 +345,32 @@
 .recipient-scroll-hint .scroll-arrow {
   animation: scrollPulse 2s ease infinite;
 }
+
+/* Comfort: honor reduced-motion requests - everything rests visible */
+@media (prefers-reduced-motion: reduce) {
+  .recipient-gallery-item,
+  .recipient-gallery-item img,
+  .recipient-gallery-item::after,
+  .reveal,
+  .recipient-message-card,
+  .recipient-details-card,
+  .recipient-closing,
+  .recipient-hero-section .recipient-main-photo,
+  .recipient-hero-section .recipient-greeting,
+  .recipient-hero-section .recipient-scroll-hint,
+  .floating-heart,
+  .falling-petal,
+  .burst-piece,
+  .confetti-piece,
+  .photo-caption,
+  .gallery-item-text {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  #preview-content [style*="opacity: 0"] {
+    opacity: 1 !important;
+  }
+}

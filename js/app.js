@@ -949,6 +949,39 @@ const App = {
     }, { root: root, threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
 
     items.forEach(item => observer.observe(item));
+    this.enableGalleryTilt();
+  },
+
+  // Gentle 3D tilt following the pointer over gift photos.
+  // Desktop pointers only; touch devices use the tap (:active) styles.
+  enableGalleryTilt() {
+    if (!window.matchMedia || !window.matchMedia('(hover: hover)').matches) return;
+    if (Animations.calmMode()) return;
+    const root = document.getElementById('recipient-view');
+    if (!root || root.dataset.tiltOn) return;
+    root.dataset.tiltOn = '1';
+    const resetAll = () => {
+      root.querySelectorAll('.recipient-gallery-item').forEach(el => {
+        el.style.setProperty('--rx', '0deg');
+        el.style.setProperty('--ry', '0deg');
+      });
+    };
+    root.addEventListener('mousemove', (e) => {
+      const card = e.target.closest ? e.target.closest('.recipient-gallery-item') : null;
+      root.querySelectorAll('.recipient-gallery-item').forEach(el => {
+        if (el === card && el.classList.contains('visible')) {
+          const r = el.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width - 0.5;
+          const py = (e.clientY - r.top) / r.height - 0.5;
+          el.style.setProperty('--ry', (px * 8).toFixed(2) + 'deg');
+          el.style.setProperty('--rx', (-py * 8).toFixed(2) + 'deg');
+        } else {
+          el.style.setProperty('--rx', '0deg');
+          el.style.setProperty('--ry', '0deg');
+        }
+      });
+    });
+    root.addEventListener('mouseleave', resetAll);
   },
 
   // Toggle music

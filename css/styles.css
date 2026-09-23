@@ -845,6 +845,7 @@ body {
   overflow: hidden;
   box-shadow: 0 5px 20px var(--shadow);
   background: var(--card-bg);
+  border: 1px solid transparent;
   opacity: 0;
   transform: translateY(40px) scale(0.97);
   transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
@@ -854,6 +855,48 @@ body {
 .recipient-gallery-item.visible {
   opacity: 1;
   transform: translateY(0) scale(1);
+  transition-delay: 0s;
+}
+
+/* Rich but soft hover / tap interactions on gift photos */
+.recipient-gallery-item {
+  position: relative;
+}
+
+.recipient-gallery-item.visible:hover,
+.recipient-gallery-item.visible:active {
+  transform: translateY(-8px) scale(1.01) perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  box-shadow: 0 18px 44px var(--shadow-lg);
+  border: 1px solid var(--accent);
+}
+
+.recipient-gallery-item.visible:hover img,
+.recipient-gallery-item.visible:active img {
+  transform: scale(1.09);
+  filter: saturate(1.08) brightness(1.03);
+}
+
+.recipient-gallery-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.35) 48%, transparent 62%);
+  transform: translateX(-130%);
+  pointer-events: none;
+}
+
+.recipient-gallery-item.visible:hover::after {
+  transform: translateX(130%);
+  transition: transform 1s ease;
+}
+
+.recipient-gallery-item .gallery-item-text {
+  transition: background 0.4s ease;
+}
+
+.recipient-gallery-item.visible:hover .gallery-item-text,
+.recipient-gallery-item.visible:active .gallery-item-text {
+  background: var(--card-hover);
 }
 
 .recipient-gallery-item img {
@@ -864,7 +907,7 @@ body {
   display: block;
   background: #000;
   transform: scale(1.03);
-  transition: transform 0.9s ease;
+  transition: transform 0.9s ease, filter 0.5s ease;
 }
 
 .recipient-gallery-item.visible img {
