@@ -856,9 +856,24 @@ const App = {
     document.getElementById('recipient-message').textContent = data.message;
     document.getElementById('recipient-footer').textContent = Generator.getFooter(data);
 
-    // Birthday details
+    // Birthday details with a live ticking countdown
     const details = Generator.getOccasionDetails(data);
-    if (details) {
+    const dob = data.fields && data.fields.dob;
+    if (dob && !isNaN(new Date(dob).getTime())) {
+      const info = Generator.getBirthdayInfo(dob);
+      document.getElementById('recipient-details').style.display = 'block';
+      document.getElementById('recipient-details-content').innerHTML = `
+        <div class="detail-label">Countdown to the big day</div>
+        <div class="detail-value">Turning ${info ? info.age + 1 : ''}</div>
+        <div class="countdown-grid">
+          <div class="countdown-box"><div class="countdown-num" id="cd-d">--</div><div class="countdown-label">Days</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-h">--</div><div class="countdown-label">Hours</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-m">--</div><div class="countdown-label">Mins</div></div>
+          <div class="countdown-box"><div class="countdown-num" id="cd-s">--</div><div class="countdown-label">Secs</div></div>
+        </div>
+      `;
+      this.startBirthdayCountdown(dob);
+    } else if (details) {
       document.getElementById('recipient-details').style.display = 'block';
       document.getElementById('recipient-details-content').innerHTML = `
         <div class="detail-label">Special Details</div>
@@ -922,6 +937,39 @@ const App = {
         Animations.startBalloonDrift(recipientView, 5200);
       }
     });
+  },
+
+  // Live ticking countdown to the next birthday (updates every second)
+  startBirthdayCountdown(dob) {
+    const birthDate = new Date(dob);
+    if (isNaN(birthDate.getTime())) return;
+    const set = (id, v) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = String(v).padStart(2, '0');
+    };
+    const update = () => {
+      const now = new Date();
+      let target = new Date(now.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+      const isToday = target.getMonth() === now.getMonth() && target.getDate() === now.getDate();
+      if (!isToday && target <= now) {
+        target = new Date(now.getFullYear() + 1, birthDate.getMonth(), birthDate.getDate());
+      }
+      const diff = target - new Date();
+      if (diff <= 0) {
+        set('cd-d', 0); set('cd-h', 0); set('cd-m', 0); set('cd-s', 0);
+        const label = document.querySelector('#recipient-details-content .detail-label');
+        if (label) label.textContent = 'Today is the day!';
+        clearInterval(timer);
+        return;
+      }
+      const s = Math.floor(diff / 1000);
+      set('cd-d', Math.floor(s / 86400));
+      set('cd-h', Math.floor(s % 86400 / 3600));
+      set('cd-m', Math.floor(s % 3600 / 60));
+      set('cd-s', s % 60);
+    };
+    const timer = setInterval(update, 1000);
+    update();
   },
 
   // Smooth scroll-triggered reveals for the gift page:

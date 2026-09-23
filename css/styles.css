@@ -990,6 +990,39 @@ body {
   color: var(--primary);
 }
 
+/* Live birthday countdown */
+.countdown-grid {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+.countdown-box {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 0.6rem 0.4rem;
+  min-width: 66px;
+  box-shadow: 0 2px 10px var(--shadow);
+}
+
+.countdown-num {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.countdown-label {
+  font-size: 0.68rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.2rem;
+}
+
 /* Closing Section */
 .recipient-closing-section {
   min-height: 50vh;
@@ -1228,6 +1261,19 @@ body {
 
   .recipient-message-card {
     padding: 2rem 1.25rem;
+  }
+
+  .countdown-grid {
+    gap: 0.4rem;
+  }
+
+  .countdown-box {
+    min-width: 58px;
+    padding: 0.5rem 0.25rem;
+  }
+
+  .countdown-num {
+    font-size: 1.3rem;
   }
 
   .recipient-greeting {
