@@ -785,11 +785,34 @@ body {
   background: rgba(0, 0, 0, 0.01);
 }
 
+.recipient-gallery-wrap {
+  max-width: 560px;
+  width: 100%;
+  text-align: center;
+}
+
+.recipient-gallery-heading {
+  font-family: var(--font-script);
+  font-size: 2.5rem;
+  margin-bottom: 0.25rem;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.recipient-gallery-sub {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  font-style: italic;
+  margin-bottom: 2rem;
+}
+
 .recipient-gallery {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  max-width: 700px;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  max-width: 560px;
   width: 100%;
 }
 
@@ -811,7 +834,7 @@ body {
 
 .recipient-gallery-item img {
   width: 100%;
-  height: 250px;
+  height: 340px;
   object-fit: cover;
   display: block;
   transform: scale(1.06);
@@ -827,7 +850,7 @@ body {
 }
 
 .recipient-gallery-item.full-width img {
-  height: 350px;
+  height: 340px;
 }
 
 /* Message Section */
@@ -1033,8 +1056,13 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .recipient-gallery {
-    grid-template-columns: 1fr;
+  .recipient-gallery-item img,
+  .recipient-gallery-item.full-width img {
+    height: 240px;
+  }
+
+  .recipient-gallery-heading {
+    font-size: 2rem;
   }
 
   .recipient-message-card {

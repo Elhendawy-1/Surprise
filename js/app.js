@@ -616,6 +616,7 @@ const App = {
 
     // Additional photos (if more than 1) + captions
     if (photos.length > 1) {
+      html += '<div style="font-family: var(--font-script); font-size: 1.8rem; margin-bottom: 1rem; opacity: 0; animation: fadeInUp 0.6s ease 0.5s forwards;">Sweet Memories</div>';
       html += '<div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 2rem;">';
       for (let i = 1; i < photos.length; i++) {
         html += `<div style="opacity: 0; animation: scaleIn 0.5s ease ${0.5 + i * 0.2}s forwards; max-width: 160px;">`;
@@ -708,9 +709,8 @@ const App = {
 
       for (let i = 1; i < photos.length; i++) {
         if (!photos[i]) continue;
-        const isFullWidth = (i === 1 && photos.length === 2);
         const delay = (i - 1) * 140;
-        galleryHtml += `<div class="recipient-gallery-item ${isFullWidth ? 'full-width' : ''}" data-index="${i}" style="transition-delay:${delay}ms">`;
+        galleryHtml += `<div class="recipient-gallery-item" data-index="${i}" style="transition-delay:${delay}ms">`;
         galleryHtml += `<img src="${photos[i]}" alt="Memory ${i}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.style.display='none'">`;
         if (photoTexts[i]) {
           galleryHtml += `<div class="gallery-item-text">${this.escapeHtml(photoTexts[i])}</div>`;
