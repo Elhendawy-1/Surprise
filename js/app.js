@@ -298,6 +298,17 @@ const App = {
     }
   },
 
+  // Who each topic is for. Birthdays fit everyone; romantic topics
+  // (Valentine, Anniversary) skip Mom, Dad and Aunt; gratitude and
+  // spontaneous gifts fit everyone.
+  topicPeople: {
+    birthday: ['mom', 'dad', 'sister', 'brother', 'aunt', 'friend', 'other'],
+    valentine: ['sister', 'brother', 'friend', 'other'],
+    anniversary: ['sister', 'brother', 'friend', 'other'],
+    thankYou: ['mom', 'dad', 'sister', 'brother', 'aunt', 'friend', 'other'],
+    justBecause: ['mom', 'dad', 'sister', 'brother', 'aunt', 'friend', 'other']
+  },
+
   // Select topic (first step after entering)
   selectOccasion(occasion) {
     this.state.occasion = occasion;
@@ -307,12 +318,12 @@ const App = {
       card.classList.toggle('selected', card.dataset.occasion === occasion);
     });
 
-    // Mom and Dad are birthday-only. For every other topic they are
-    // hidden, and any previous pick of them is cleared.
-    const familyOK = occasion === 'birthday';
+    // Show only the people this topic fits, and clear any
+    // previous pick that is no longer available.
+    const allowed = this.topicPeople[occasion] || this.topicPeople.birthday;
     document.querySelectorAll('#relationship-grid .card').forEach(card => {
-      const isFamily = card.dataset.relationship === 'mom' || card.dataset.relationship === 'dad';
-      card.style.display = (!familyOK && isFamily) ? 'none' : '';
+      const ok = allowed.indexOf(card.dataset.relationship) !== -1;
+      card.style.display = ok ? '' : 'none';
       card.classList.remove('selected');
     });
     this.state.relationship = null;
