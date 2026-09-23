@@ -647,7 +647,10 @@ const App = {
 
       // Update share section
       document.getElementById('share-link').value = shortUrl;
-      document.getElementById('qr-image').src = Share.getQrCodeUrl(shortUrl);
+      const qrUrl = Share.getQrCodeUrl(shortUrl);
+      document.getElementById('qr-image').src = qrUrl;
+      const qrDownload = document.getElementById('qr-download');
+      if (qrDownload) qrDownload.href = qrUrl;
       const photoCount = finalData.photoUrls.length;
       if (embedded > 0 && skipped.length === 0) {
         document.querySelector('#section-share .section-subtitle').textContent =

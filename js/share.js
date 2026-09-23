@@ -276,40 +276,48 @@ const Share = {
   },
 
   async shortenUrl(longUrl) {
+    // Short links make much sparser, easier-to-scan QR codes,
+    // so try two free shorteners before falling back to the long URL.
     if (longUrl.length < 200) return longUrl;
 
-    try {
-      return await new Promise((resolve, reject) => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const services = [
+      'https://tinyurl.com/api-create.php?url=',
+      'https://is.gd/create.php?format=simple&url='
+    ];
 
-        fetch('https://tinyurl.com/api-create.php?url=' + encodeURIComponent(longUrl), {
-          signal: controller.signal
-        })
-          .then(response => {
-            clearTimeout(timeoutId);
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            return response.text();
-          })
-          .then(shortUrl => {
-            if (shortUrl && shortUrl.startsWith('http')) {
-              resolve(shortUrl);
-            } else {
-              resolve(longUrl);
-            }
-          })
-          .catch(err => {
-            clearTimeout(timeoutId);
-            resolve(longUrl);
-          });
-      });
-    } catch (err) {
-      return longUrl;
+    for (const base of services) {
+      try {
+        const shortUrl = await new Promise((resolve) => {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+          fetch(base + encodeURIComponent(longUrl), { signal: controller.signal })
+            .then(response => {
+              clearTimeout(timeoutId);
+              if (!response.ok) throw new Error('HTTP ' + response.status);
+              return response.text();
+            })
+            .then(text => {
+              const candidate = (text || '').trim();
+              resolve(candidate && candidate.startsWith('http') ? candidate : null);
+            })
+            .catch(() => {
+              clearTimeout(timeoutId);
+              resolve(null);
+            });
+        });
+        if (shortUrl) return shortUrl;
+      } catch (err) {
+        console.warn('URL shortening failed:', err);
+      }
     }
+    // Return original URL if shortening fails
+    return longUrl;
   },
 
   getQrCodeUrl(url) {
-    return 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(url);
+    // Large size + quiet zone + explicit black-on-white for max scannability
+    return 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&qzone=2&ecc=M&color=0-0-0&bgcolor=255-255-255&data=' + encodeURIComponent(url);
   },
 
   async copyToClipboard(text) {
