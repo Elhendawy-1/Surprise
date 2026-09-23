@@ -247,7 +247,29 @@ const App = {
     reader.readAsDataURL(file);
   },
 
-  // Handle pasted URL - show live preview
+  // Status line under a URL input (created on demand)
+  urlStatusEl(slot) {
+    const urlInput = document.querySelector(`.photo-url-input[data-slot="${slot}"]`);
+    if (!urlInput) return null;
+    let el = urlInput.parentNode.querySelector(`.photo-url-status[data-slot="${slot}"]`);
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'photo-url-status';
+      el.dataset.slot = slot;
+      urlInput.parentNode.insertBefore(el, urlInput.nextSibling);
+    }
+    return el;
+  },
+
+  setUrlStatus(slot, ok, text) {
+    const el = this.urlStatusEl(slot);
+    if (!el) return;
+    el.textContent = text || '';
+    el.style.display = text ? 'block' : 'none';
+    el.style.color = ok ? '#2e7d32' : '#c62828';
+  },
+
+  // Handle pasted URL - show live preview + clear OK / error feedback
   handlePhotoUrlInput(rawVal, slot) {
     const val = Share.normalizeImageUrl(rawVal);
     const img = document.getElementById(`photo-preview-img-${slot}`);
@@ -257,24 +279,29 @@ const App = {
     // If a file is selected, file preview wins - don't override
     if (this.state.photos[slot]) return;
     if (val && (val.startsWith('http://') || val.startsWith('https://'))) {
-      img.src = val;
+      this.setUrlStatus(slot, true, 'Checking image...');
       img.onerror = () => {
         preview.style.display = 'none';
         placeholder.style.display = 'flex';
+        this.setUrlStatus(slot, false, 'This link does not open an image. Use a direct image link, a Drive/Dropbox share link, or the site gallery.');
       };
       img.onload = () => {
         preview.style.display = 'block';
         placeholder.style.display = 'none';
+        this.setUrlStatus(slot, true, 'Image looks good - it will appear in the gift.');
       };
+      img.src = val;
       // Trigger load check for cached images
       if (img.complete && img.naturalWidth > 0) {
         preview.style.display = 'block';
         placeholder.style.display = 'none';
+        this.setUrlStatus(slot, true, 'Image looks good - it will appear in the gift.');
       }
     } else {
       preview.style.display = 'none';
       placeholder.style.display = 'flex';
       img.removeAttribute('src');
+      this.setUrlStatus(slot, false, rawVal && rawVal.trim() ? 'That does not look like a link (must start with http).' : '');
     }
   },
 
@@ -552,7 +579,7 @@ const App = {
 
       const hadFiles = this.state.photos.some(Boolean);
       if (hadFiles && finalData.photoUrls.length === 0) {
-        alert('Photo upload failed (browser blocked the hosting service).\n\nPlease paste an image URL instead:\n1. Upload at imgur.com or postimages.org\n2. Copy the direct image link\n3. Paste it in "Or paste image URL here"\n\nYour link will still be created without photos.');
+        alert('Photo upload failed (the hosting service blocked the browser).\n\nEasiest fix - use the site gallery:\n1. Upload your photo to the assets/photos folder in your GitHub repo\n2. Click "Choose from site gallery" and tap your photo\n\nOr paste a link (Google Drive and Dropbox share links work too).\n\nYour link will still be created without photos.');
       }
 
       console.log('Generating URL...');

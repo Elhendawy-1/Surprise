@@ -558,6 +558,13 @@ body {
   font-style: italic;
 }
 
+.photo-url-status {
+  display: none;
+  font-size: 0.78rem;
+  text-align: center;
+  font-style: italic;
+}
+
 .photo-gallery-btn {
   width: 100%;
   padding: 0.5rem 0.75rem;

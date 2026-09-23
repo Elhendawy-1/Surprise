@@ -2,7 +2,13 @@
 
 const Share = {
   imageHost: {
-    corsProxy: 'https://corsproxy.io/?url=',
+    // CORS proxies tried in order (catbox has no CORS headers,
+    // so browser uploads must go through a proxy)
+    corsProxies: [
+      'https://api.allorigins.win/raw?url=',
+      'https://api.codetabs.com/v1/proxy?quest=',
+      'https://corsproxy.io/?url='
+    ],
     services: {
       picrd: {
         uploadUrl: 'https://picrd.com/api/upload',
@@ -88,30 +94,32 @@ const Share = {
 
   async uploadToService(serviceName, file) {
     const service = this.imageHost.services[serviceName];
-    const formData = new FormData();
 
-    if (service.formData) {
-      Object.entries(service.formData).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-    }
-    formData.append(service.fieldName, file);
+    // Build the multipart body fresh for every attempt
+    // (a used FormData cannot always be re-sent reliably)
+    const buildBody = () => {
+      const formData = new FormData();
+      if (service.formData) {
+        Object.entries(service.formData).forEach(([key, value]) => {
+          formData.append(key, value);
+        });
+      }
+      formData.append(service.fieldName, file, file.name || 'photo.jpg');
+      return formData;
+    };
 
-    // Try direct upload
-    try {
-      const url = await this.doFetch(service.uploadUrl, service.method || 'POST', formData, service);
-      if (url) return url;
-    } catch (err) {
-      console.warn(`Direct ${serviceName} failed:`, err.message);
-    }
+    const method = service.method || 'POST';
+    const targets = [service.uploadUrl].concat(
+      this.imageHost.corsProxies.map(p => p + encodeURIComponent(service.uploadUrl))
+    );
 
-    // Try via CORS proxy
-    try {
-      const proxyUrl = this.imageHost.corsProxy + encodeURIComponent(service.uploadUrl);
-      const url = await this.doFetch(proxyUrl, service.method || 'POST', formData, service);
-      if (url) return url;
-    } catch (err) {
-      console.warn(`Proxy ${serviceName} failed:`, err.message);
+    for (const target of targets) {
+      try {
+        const url = await this.doFetch(target, method, buildBody(), service);
+        if (url) return url;
+      } catch (err) {
+        console.warn(`Upload via ${target} failed:`, err.message);
+      }
     }
 
     throw new Error(`${serviceName} upload failed`);
@@ -174,17 +182,29 @@ const Share = {
     });
   },
 
-  // Convert GitHub page/blob links into direct raw image links
+  // Convert share-page links into direct image links that render in <img>
   normalizeImageUrl(url) {
     if (!url) return '';
     // Strip query string and hash (e.g. ?raw=true) before matching
     let u = url.trim().split('?')[0].split('#')[0];
+    let m;
     // https://github.com/OWNER/REPO/blob/BRANCH/PATH -> raw link
-    let m = u.match(/^https?:\/\/(?:www\.)?github\.com\/([^/]+\/[^/]+)\/blob\/([^/]+)\/(.+)$/);
+    m = u.match(/^https?:\/\/(?:www\.)?github\.com\/([^/]+\/[^/]+)\/blob\/([^/]+)\/(.+)$/);
     if (m) return 'https://raw.githubusercontent.com/' + m[1] + '/' + m[2] + '/' + m[3];
     // https://github.com/OWNER/REPO/raw/BRANCH/PATH -> raw link
     m = u.match(/^https?:\/\/(?:www\.)?github\.com\/([^/]+\/[^/]+)\/raw\/([^/]+)\/(.+)$/);
     if (m) return 'https://raw.githubusercontent.com/' + m[1] + '/' + m[2] + '/' + m[3];
+    // Google Drive share link -> direct thumbnail link
+    // https://drive.google.com/file/d/FILEID/view...
+    m = u.match(/^https?:\/\/drive\.google\.com\/file\/d\/([^/]+)/);
+    if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1000';
+    // https://drive.google.com/open?id=FILEID
+    m = url.trim().match(/^https?:\/\/drive\.google\.com\/open\?[^#]*\bid=([^&#]+)/);
+    if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1000';
+    // Dropbox share link -> direct download link
+    // https://www.dropbox.com/s/..../photo.jpg -> dl.dropboxusercontent.com
+    m = u.match(/^https?:\/\/(?:www\.)?dropbox\.com\/(.+)$/);
+    if (m) return 'https://dl.dropboxusercontent.com/' + m[1];
     return url.trim();
   },
 
