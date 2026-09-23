@@ -208,9 +208,13 @@
   animation: fadeIn 1s ease 1.5s forwards;
 }
 
+/* Message card keeps its unfold flourish, but triggered on scroll (not page load) */
 .recipient-message-card {
   opacity: 0;
-  animation: unfold 0.8s ease 0.3s forwards;
+}
+
+.recipient-message-card.visible {
+  animation: unfold 0.8s ease forwards;
 }
 
 /* NOTE: .recipient-gallery-item base styles live in styles.css (single source).
@@ -219,7 +223,35 @@
 
 .recipient-closing {
   opacity: 0;
-  animation: fadeIn 1s ease 0.5s forwards;
+}
+
+.recipient-closing.visible {
+  animation: fadeIn 1s ease forwards;
+}
+
+/* Generic scroll-reveal: fades + rises when scrolled into view */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Birthday details card reveals on scroll */
+.recipient-details-card {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.recipient-details-card.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .recipient-closing-hearts {

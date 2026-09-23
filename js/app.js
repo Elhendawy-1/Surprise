@@ -795,15 +795,16 @@ const App = {
       }
 
       galleryGrid.innerHTML = galleryHtml;
-
-      // Animate gallery items on scroll (with fallback so they never stay invisible)
-      setTimeout(() => {
-        this.setupGalleryScrollAnimation();
-        setTimeout(() => {
-          document.querySelectorAll('.recipient-gallery-item').forEach(el => el.classList.add('visible'));
-        }, 2500);
-      }, 100);
     }
+
+    // Smooth scroll-triggered reveals for the whole gift page
+    setTimeout(() => {
+      this.setupScrollReveals();
+      // Safety fallback so nothing ever stays invisible
+      setTimeout(() => {
+        document.querySelectorAll('#recipient-view .recipient-gallery-item, #recipient-view .recipient-message-card, #recipient-view .recipient-details-card, #recipient-view .recipient-closing, #recipient-view .reveal').forEach(el => el.classList.add('visible'));
+      }, 3000);
+    }, 100);
 
     // Message
     document.getElementById('recipient-message').textContent = data.message;
@@ -853,9 +854,13 @@ const App = {
     }, 500);
   },
 
-  // Setup gallery scroll animation
-  setupGalleryScrollAnimation() {
-    const items = document.querySelectorAll('.recipient-gallery-item');
+  // Smooth scroll-triggered reveals for the gift page:
+  // photos, message card, details card and closing all glide in
+  // as the recipient scrolls to them.
+  setupScrollReveals() {
+    const root = document.getElementById('recipient-view');
+    if (!root) return;
+    const items = root.querySelectorAll('.recipient-gallery-item, .recipient-message-card, .recipient-details-card, .recipient-closing, .reveal');
     if (!items.length) return;
 
     // If IntersectionObserver unavailable, show all immediately
@@ -864,7 +869,6 @@ const App = {
       return;
     }
 
-    const scrollRoot = document.getElementById('recipient-view') || null;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -872,7 +876,7 @@ const App = {
           observer.unobserve(entry.target);
         }
       });
-    }, { root: scrollRoot, threshold: 0.1, rootMargin: '0px 0px -10% 0px' });
+    }, { root: root, threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
 
     items.forEach(item => observer.observe(item));
   },
