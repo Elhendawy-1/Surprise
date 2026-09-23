@@ -14,10 +14,11 @@ const App = {
     customMessage: '',
     theme: 'classic',
     musicEnabled: true,
-    photos: [null, null, null, null, null],
-    photoTexts: ['', '', '', '', ''],
-    photoUrls_fromFiles: [],
-    photoUrls_fromInput: ['', '', '', '', ''],
+    photos: {},
+    photoTexts: {},
+    photoUrls_fromFiles: {},
+    photoUrls_fromInput: {},
+    photoSlotSeq: 0,
     selectedTheme: 'classic'
   },
 
@@ -38,9 +39,45 @@ const App = {
 
     // Normal creator flow
     this.bindEvents();
+    this.addPhotoSlot();
+    this.addPhotoSlot();
+    this.addPhotoSlot();
     this.applyLang();
     this.showSection('hero');
     Animations.startHeroAnimation();
+  },
+
+  // Build one photo slot (unlimited - the user adds as many as they like)
+  addPhotoSlot() {
+    const slot = this.state.photoSlotSeq++;
+    const grid = document.getElementById('photos-grid');
+    const lang = this.state.lang || 'en';
+    const div = document.createElement('div');
+    div.className = 'photo-slot';
+    div.dataset.slot = slot;
+    div.innerHTML =
+      '<div class="photo-upload-area" id="photo-upload-area-' + slot + '">' +
+        '<input type="file" accept="image/*" class="file-input photo-file-input" data-slot="' + slot + '">' +
+        '<div class="photo-preview" id="photo-preview-' + slot + '" style="display:none;">' +
+          '<img id="photo-preview-img-' + slot + '" alt="Preview">' +
+          '<button type="button" class="btn-remove photo-remove-btn" data-slot="' + slot + '">&times;</button>' +
+        '</div>' +
+        '<div class="photo-placeholder" id="photo-placeholder-' + slot + '">' +
+          '<span class="upload-icon">&#128247;</span>' +
+          '<span>+ Add Photo</span>' +
+        '</div>' +
+      '</div>' +
+      '<input type="text" class="photo-url-input" data-slot="' + slot + '" data-i18n-ph="urlPh" placeholder="' + this.escapeHtml(t('urlPh', lang)) + '">' +
+      '<button type="button" class="photo-gallery-btn" data-slot="' + slot + '">&#128444; <span data-i18n="galleryBtn">' + this.escapeHtml(t('galleryBtn', lang)) + '</span></button>' +
+      '<input type="text" class="photo-text-input" data-slot="' + slot + '" data-i18n-ph="captionPh" placeholder="' + this.escapeHtml(t('captionPh', lang)) + '">';
+    grid.appendChild(div);
+    return slot;
+  },
+
+  // Slot ids currently on the page, in order
+  photoSlots() {
+    return Array.from(document.querySelectorAll('#photos-grid .photo-slot'))
+      .map(el => parseInt(el.dataset.slot, 10));
   },
 
   // Bind all event listeners
@@ -86,39 +123,61 @@ const App = {
       }
     });
 
-    // Photo uploads - multiple slots
-    document.querySelectorAll('.photo-file-input').forEach(input => {
-      input.addEventListener('change', (e) => {
-        const slot = parseInt(e.target.dataset.slot);
-        const file = e.target.files[0];
-        if (file) this.handlePhotoFile(file, slot);
-      });
+    // Add-photo button (unlimited slots)
+    document.getElementById('btn-add-photo').addEventListener('click', () => {
+      this.addPhotoSlot();
+      const grid = document.getElementById('photos-grid');
+      if (grid.lastElementChild && grid.lastElementChild.scrollIntoView) {
+        grid.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     });
 
-    // Pasted image URLs - live preview per slot
-    document.querySelectorAll('.photo-url-input').forEach(input => {
-      input.addEventListener('input', (e) => {
-        const slot = parseInt(e.target.dataset.slot);
-        this.handlePhotoUrlInput(e.target.value.trim(), slot);
-      });
+    // Photo grid events (delegated - slots are added dynamically)
+    const grid = document.getElementById('photos-grid');
+    grid.addEventListener('change', (e) => {
+      const input = e.target.closest ? e.target.closest('.photo-file-input') : null;
+      if (!input) return;
+      const file = input.files[0];
+      if (file) this.handlePhotoFile(file, parseInt(input.dataset.slot, 10));
     });
-
-    document.querySelectorAll('.photo-remove-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+    grid.addEventListener('input', (e) => {
+      const input = e.target.closest ? e.target.closest('.photo-url-input') : null;
+      if (!input) return;
+      this.handlePhotoUrlInput(input.value.trim(), parseInt(input.dataset.slot, 10));
+    });
+    grid.addEventListener('click', (e) => {
+      const rm = e.target.closest ? e.target.closest('.photo-remove-btn') : null;
+      if (rm) {
         e.stopPropagation();
         e.preventDefault();
-        const slot = parseInt(e.target.dataset.slot);
-        this.removePhoto(slot);
-      });
-    });
-
-    // Site gallery picker per slot (closest: clicks may land on the inner label span)
-    document.querySelectorAll('.photo-gallery-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+        this.removePhoto(parseInt(rm.dataset.slot, 10));
+        return;
+      }
+      const gal = e.target.closest ? e.target.closest('.photo-gallery-btn') : null;
+      if (gal) {
         e.preventDefault();
-        const el = e.target.closest ? e.target.closest('.photo-gallery-btn') : btn;
-        this.openGalleryPicker(parseInt(el.dataset.slot));
-      });
+        this.openGalleryPicker(parseInt(gal.dataset.slot, 10));
+      }
+    });
+    grid.addEventListener('dragover', (e) => {
+      const area = e.target.closest ? e.target.closest('.photo-upload-area') : null;
+      if (!area) return;
+      e.preventDefault();
+      area.style.borderColor = 'var(--primary)';
+    });
+    grid.addEventListener('dragleave', (e) => {
+      const area = e.target.closest ? e.target.closest('.photo-upload-area') : null;
+      if (area) area.style.borderColor = '';
+    });
+    grid.addEventListener('drop', (e) => {
+      const area = e.target.closest ? e.target.closest('.photo-upload-area') : null;
+      if (!area) return;
+      e.preventDefault();
+      area.style.borderColor = '';
+      const slotEl = area.closest('.photo-slot');
+      if (e.dataTransfer.files.length && slotEl) {
+        this.handlePhotoFile(e.dataTransfer.files[0], parseInt(slotEl.dataset.slot, 10));
+      }
     });
 
     const galleryClose = document.getElementById('gallery-picker-close');
@@ -127,25 +186,6 @@ const App = {
         document.getElementById('gallery-picker').style.display = 'none';
       });
     }
-
-    // Drag and drop for each slot
-    document.querySelectorAll('.photo-upload-area').forEach(area => {
-      area.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        area.style.borderColor = 'var(--primary)';
-      });
-      area.addEventListener('dragleave', () => {
-        area.style.borderColor = '';
-      });
-      area.addEventListener('drop', (e) => {
-        e.preventDefault();
-        area.style.borderColor = '';
-        const slot = parseInt(area.closest('.photo-slot').dataset.slot);
-        if (e.dataTransfer.files.length) {
-          this.handlePhotoFile(e.dataTransfer.files[0], slot);
-        }
-      });
-    });
 
     // Message mode toggle
     document.querySelectorAll('.toggle-btn').forEach(btn => {
@@ -587,7 +627,7 @@ const App = {
     // Build aligned pairs per slot: file-upload URL wins, else pasted URL
     const allPhotoUrls = [];
     const allPhotoTexts = [];
-    for (let i = 0; i < 5; i++) {
+    for (const i of this.photoSlots()) {
       let url = '';
       if (this.state.photoUrls_fromFiles[i]) {
         url = this.state.photoUrls_fromFiles[i];
@@ -637,7 +677,7 @@ const App = {
     // use the local preview dataURL so preview shows instantly
     const previewUrls = [];
     const previewTexts = [];
-    for (let i = 0; i < 5; i++) {
+    for (const i of this.photoSlots()) {
       const caption = this.getCaptionForSlot(i);
       if (this.state.photos[i]) {
         const localImg = document.getElementById(`photo-preview-img-${i}`);
@@ -693,25 +733,24 @@ const App = {
 
     try {
       // Upload file-based photos (non-blocking - continue even if uploads fail)
-      const uploadedUrls = [];
-      const fileCount = this.state.photos.filter(Boolean).length;
+      const slots = this.photoSlots();
+      const uploadedUrls = {};
+      const fileSlots = slots.filter(s => this.state.photos[s]);
       let done = 0;
-      for (let i = 0; i < this.state.photos.length; i++) {
-        if (this.state.photos[i]) {
-          done++;
-          this.setLoadingStatus(t('loadUploading', lang, { a: done, b: fileCount }));
-          try {
-            console.log('Uploading photo ' + (i + 1) + '...');
-            const url = await Share.uploadImage(this.state.photos[i]);
-            if (url) {
-              uploadedUrls[i] = url;
-              console.log('Photo ' + (i + 1) + ' uploaded:', url);
-            } else {
-              console.warn('Photo ' + (i + 1) + ' upload returned null');
-            }
-          } catch (photoErr) {
-            console.warn('Photo ' + (i + 1) + ' upload failed:', photoErr);
+      for (const i of fileSlots) {
+        done++;
+        this.setLoadingStatus(t('loadUploading', lang, { a: done, b: fileSlots.length }));
+        try {
+          console.log('Uploading photo ' + (i + 1) + '...');
+          const url = await Share.uploadImage(this.state.photos[i]);
+          if (url) {
+            uploadedUrls[i] = url;
+            console.log('Photo ' + (i + 1) + ' uploaded:', url);
+          } else {
+            console.warn('Photo ' + (i + 1) + ' upload returned null');
           }
+        } catch (photoErr) {
+          console.warn('Photo ' + (i + 1) + ' upload failed:', photoErr);
         }
       }
       this.state.photoUrls_fromFiles = uploadedUrls;
@@ -724,8 +763,8 @@ const App = {
       const skipped = [];
       let heicWarned = false;
       const tiers = [{ w: 384, q: 0.55 }, { w: 256, q: 0.5 }, { w: 192, q: 0.5 }];
-      for (let i = 0; i < this.state.photos.length; i++) {
-        if (this.state.photos[i] && !uploadedUrls[i]) {
+      for (const i of fileSlots) {
+        if (!uploadedUrls[i]) {
           this.setLoadingStatus(t('loadPacking', lang, { a: i + 1 }));
           let placed = false;
           for (const t of tiers) {
@@ -764,8 +803,7 @@ const App = {
       const finalData = this.collectData();
       console.log('Photo URLs for link:', finalData.photoUrls.length);
 
-      const hadFiles = this.state.photos.some(Boolean);
-      if (hadFiles && finalData.photoUrls.length === 0) {
+      if (fileSlots.length > 0 && finalData.photoUrls.length === 0) {
         alert(t('alertNoPhotos', lang));
       }
 
@@ -1250,15 +1288,14 @@ const App = {
     });
     document.querySelectorAll('.occasion-field').forEach(f => { f.style.display = 'none'; });
 
-    // Reset all photo slots
-    for (let i = 0; i < 5; i++) {
-      this.removePhoto(i);
-      const textInput = document.querySelector('.photo-text-input[data-slot="' + i + '"]');
-      if (textInput) textInput.value = '';
-      const urlInput = document.querySelector('.photo-url-input[data-slot="' + i + '"]');
-      if (urlInput) urlInput.value = '';
-      this.setUrlStatus(i, false, '');
-    }
+    // Rebuild photo slots fresh (3 starter slots, unlimited after)
+    document.getElementById('photos-grid').innerHTML = '';
+    this.state.photos = {};
+    this.state.photoUrls_fromFiles = {};
+    this.state.photoSlotSeq = 0;
+    this.addPhotoSlot();
+    this.addPhotoSlot();
+    this.addPhotoSlot();
 
     this.setMessageMode('auto');
     document.getElementById('custom-message').value = '';

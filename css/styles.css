@@ -528,6 +528,11 @@ body {
   gap: 1rem;
 }
 
+.add-photo-wrap {
+  text-align: center;
+  margin-top: 0.75rem;
+}
+
 .photo-slot {
   display: flex;
   flex-direction: column;

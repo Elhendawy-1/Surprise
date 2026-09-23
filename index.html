@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Send Love & Warmth</title>
-  <link rel="stylesheet" href="css/themes.css?v=16">
-  <link rel="stylesheet" href="css/styles.css?v=16">
-  <link rel="stylesheet" href="css/animations.css?v=16">
+  <link rel="stylesheet" href="css/themes.css?v=17">
+  <link rel="stylesheet" href="css/styles.css?v=17">
+  <link rel="stylesheet" href="css/animations.css?v=17">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:wght@400;500;600&family=Dancing+Script:wght@400;700&family=Cairo:wght@400;600;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -143,7 +143,7 @@
         </div>
 
         <div class="form-group">
-          <label data-i18n="photosLabel">Photos (optional) - Add up to 5 images</label>
+          <label data-i18n="photosLabel">Photos (optional) - Add as many as you like</label>
           <p class="form-hint" data-i18n-html="photosHintHtml">3 ways to add a photo: upload a file, paste an image link (direct links, Google Drive and Dropbox share links all work — you will see a green check when it loads), or pick from the <strong>site gallery</strong> (upload images to the <strong>assets/photos</strong> folder in your GitHub repo — those always show in the final gift). Add your caption under each photo.</p>
           <div class="gallery-picker" id="gallery-picker" style="display:none;">
             <div class="gallery-picker-header">
@@ -152,87 +152,9 @@
             </div>
             <div class="gallery-picker-grid" id="gallery-picker-grid"></div>
           </div>
-          <div class="photos-grid" id="photos-grid">
-            <div class="photo-slot" data-slot="0">
-              <div class="photo-upload-area" id="photo-upload-area-0">
-                <input type="file" accept="image/*" class="file-input photo-file-input" data-slot="0">
-                <div class="photo-preview" id="photo-preview-0" style="display:none;">
-                  <img id="photo-preview-img-0" alt="Preview">
-                  <button type="button" class="btn-remove photo-remove-btn" data-slot="0">&times;</button>
-                </div>
-                <div class="photo-placeholder" id="photo-placeholder-0">
-                  <span class="upload-icon">&#128247;</span>
-                  <span>+ Add Photo</span>
-                </div>
-              </div>
-              <input type="text" class="photo-url-input" data-slot="0" placeholder="Or paste image URL here" data-i18n-ph="urlPh">
-              <button type="button" class="photo-gallery-btn" data-slot="0">🖼 <span data-i18n="galleryBtn">Choose from site gallery</span></button>
-              <input type="text" class="photo-text-input" data-i18n-ph="captionPh" data-slot="0" placeholder="Caption (optional)">
-            </div>
-            <div class="photo-slot" data-slot="1">
-              <div class="photo-upload-area" id="photo-upload-area-1">
-                <input type="file" accept="image/*" class="file-input photo-file-input" data-slot="1">
-                <div class="photo-preview" id="photo-preview-1" style="display:none;">
-                  <img id="photo-preview-img-1" alt="Preview">
-                  <button type="button" class="btn-remove photo-remove-btn" data-slot="1">&times;</button>
-                </div>
-                <div class="photo-placeholder" id="photo-placeholder-1">
-                  <span class="upload-icon">&#128247;</span>
-                  <span>+ Add Photo</span>
-                </div>
-              </div>
-              <input type="text" class="photo-url-input" data-slot="1" placeholder="Or paste image URL here" data-i18n-ph="urlPh">
-              <button type="button" class="photo-gallery-btn" data-slot="1">🖼 <span data-i18n="galleryBtn">Choose from site gallery</span></button>
-              <input type="text" class="photo-text-input" data-i18n-ph="captionPh" data-slot="1" placeholder="Caption (optional)">
-            </div>
-            <div class="photo-slot" data-slot="2">
-              <div class="photo-upload-area" id="photo-upload-area-2">
-                <input type="file" accept="image/*" class="file-input photo-file-input" data-slot="2">
-                <div class="photo-preview" id="photo-preview-2" style="display:none;">
-                  <img id="photo-preview-img-2" alt="Preview">
-                  <button type="button" class="btn-remove photo-remove-btn" data-slot="2">&times;</button>
-                </div>
-                <div class="photo-placeholder" id="photo-placeholder-2">
-                  <span class="upload-icon">&#128247;</span>
-                  <span>+ Add Photo</span>
-                </div>
-              </div>
-              <input type="text" class="photo-url-input" data-slot="2" placeholder="Or paste image URL here" data-i18n-ph="urlPh">
-              <button type="button" class="photo-gallery-btn" data-slot="2">🖼 <span data-i18n="galleryBtn">Choose from site gallery</span></button>
-              <input type="text" class="photo-text-input" data-i18n-ph="captionPh" data-slot="2" placeholder="Caption (optional)">
-            </div>
-            <div class="photo-slot" data-slot="3">
-              <div class="photo-upload-area" id="photo-upload-area-3">
-                <input type="file" accept="image/*" class="file-input photo-file-input" data-slot="3">
-                <div class="photo-preview" id="photo-preview-3" style="display:none;">
-                  <img id="photo-preview-img-3" alt="Preview">
-                  <button type="button" class="btn-remove photo-remove-btn" data-slot="3">&times;</button>
-                </div>
-                <div class="photo-placeholder" id="photo-placeholder-3">
-                  <span class="upload-icon">&#128247;</span>
-                  <span>+ Add Photo</span>
-                </div>
-              </div>
-              <input type="text" class="photo-url-input" data-slot="3" placeholder="Or paste image URL here" data-i18n-ph="urlPh">
-              <button type="button" class="photo-gallery-btn" data-slot="3">🖼 <span data-i18n="galleryBtn">Choose from site gallery</span></button>
-              <input type="text" class="photo-text-input" data-i18n-ph="captionPh" data-slot="3" placeholder="Caption (optional)">
-            </div>
-            <div class="photo-slot" data-slot="4">
-              <div class="photo-upload-area" id="photo-upload-area-4">
-                <input type="file" accept="image/*" class="file-input photo-file-input" data-slot="4">
-                <div class="photo-preview" id="photo-preview-4" style="display:none;">
-                  <img id="photo-preview-img-4" alt="Preview">
-                  <button type="button" class="btn-remove photo-remove-btn" data-slot="4">&times;</button>
-                </div>
-                <div class="photo-placeholder" id="photo-placeholder-4">
-                  <span class="upload-icon">&#128247;</span>
-                  <span>+ Add Photo</span>
-                </div>
-              </div>
-              <input type="text" class="photo-url-input" data-slot="4" placeholder="Or paste image URL here" data-i18n-ph="urlPh">
-              <button type="button" class="photo-gallery-btn" data-slot="4">🖼 <span data-i18n="galleryBtn">Choose from site gallery</span></button>
-              <input type="text" class="photo-text-input" data-i18n-ph="captionPh" data-slot="4" placeholder="Caption (optional)">
-            </div>
+          <div class="photos-grid" id="photos-grid"></div>
+          <div class="add-photo-wrap">
+            <button type="button" id="btn-add-photo" class="btn-secondary">＋ <span data-i18n="addPhotoBtn">Add Photo</span></button>
           </div>
         </div>
 
@@ -434,10 +356,10 @@
     <p class="loading-sub" id="loading-status"></p>
   </div>
 
-  <script src="js/animations.js?v=16"></script>
-  <script src="js/generator.js?v=16"></script>
-  <script src="js/share.js?v=16"></script>
-  <script src="js/i18n.js?v=16"></script>
-  <script src="js/app.js?v=16"></script>
+  <script src="js/animations.js?v=17"></script>
+  <script src="js/generator.js?v=17"></script>
+  <script src="js/share.js?v=17"></script>
+  <script src="js/i18n.js?v=17"></script>
+  <script src="js/app.js?v=17"></script>
 </body>
 </html>
