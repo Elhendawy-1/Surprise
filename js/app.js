@@ -342,14 +342,6 @@ const App = {
     }, 300);
   },
 
-  // Show only the form fields that belong to the chosen topic
-  updateFormFields() {
-    const occ = this.state.occasion || 'birthday';
-    document.querySelectorAll('.occasion-field').forEach(field => {
-      field.style.display = field.dataset.for === occ ? '' : 'none';
-    });
-  },
-
   // Gather topic-specific field values
   occasionFields() {
     return {
@@ -601,6 +593,68 @@ const App = {
     path: 'assets/photos',
     cache: null,
     pendingSlot: null
+  },
+
+  // Per-topic identity: icon, centerpiece, gallery heading, closing hearts
+  occasionMeta: {
+    birthday: { icon: '🎂', galleryHead: null, closing: '❤ ❤ ❤' },
+    valentine: { icon: '💘', galleryHead: 'galValentine', closing: '💘 💖 💘' },
+    anniversary: { icon: '🥂', galleryHead: 'galAnniversary', closing: '🥂 ✨ 🥂' },
+    thankYou: { icon: '🙏', galleryHead: 'galThanks', closing: '🙏 💐 🙏' },
+    justBecause: { icon: '💌', galleryHead: 'galJust', closing: '💌 ✨ 💌' }
+  },
+
+  occasionName(occ, lang) {
+    const map = { birthday: 'occBirthday', valentine: 'occValentine', anniversary: 'occAnniversary', thankYou: 'occThankYou', justBecause: 'occJustBecause' };
+    return t(map[occ] || 'occBirthday', lang);
+  },
+
+  // Show only the form fields that belong to the chosen topic + banner
+  updateFormFields() {
+    const occ = this.state.occasion || 'birthday';
+    const lang = this.state.lang || 'en';
+    document.querySelectorAll('.occasion-field').forEach(field => {
+      field.style.display = field.dataset.for === occ ? '' : 'none';
+    });
+    const meta = this.occasionMeta[occ] || this.occasionMeta.birthday;
+    const icon = document.getElementById('occasion-banner-icon');
+    const text = document.getElementById('occasion-banner-text');
+    if (icon) icon.textContent = meta.icon;
+    if (text) text.textContent = this.occasionName(occ, lang);
+  },
+
+  // Topic centerpiece for valentine / thank-you / just-because
+  // (birthdays + anniversaries get the cake instead)
+  renderCenterpiece(occ, lang) {
+    const section = document.getElementById('recipient-centerpiece');
+    const visual = document.getElementById('centerpiece-visual');
+    const heading = document.getElementById('centerpiece-heading');
+    const sub = document.getElementById('centerpiece-sub');
+    const host = document.getElementById('recipient-view');
+    if (!section || !visual) return;
+    const configs = {
+      valentine: { emoji: '💝', anim: 'beat', h: 'cpValentineH', s: 'cpValentineS', burst: 'hearts' },
+      thankYou: { emoji: '💐', anim: 'sway', h: 'cpThanksH', s: 'cpThanksS', burst: 'petals' },
+      justBecause: { emoji: '🎁', anim: 'twinkle', h: 'cpJustH', s: 'cpJustS', burst: 'confetti' }
+    };
+    const cfg = configs[occ];
+    if (!cfg) {
+      section.style.display = 'none';
+      return;
+    }
+    section.style.display = '';
+    visual.textContent = cfg.emoji;
+    visual.className = 'centerpiece-visual ' + cfg.anim;
+    heading.textContent = t(cfg.h, lang);
+    sub.textContent = t(cfg.s, lang);
+    const wrap = section.querySelector('.centerpiece-wrap');
+    if (wrap) {
+      wrap.onclick = () => {
+        if (cfg.burst === 'hearts') Animations.celebrationBurst(host, 24);
+        else if (cfg.burst === 'petals') Animations.petalShower(host, 3000, 220);
+        else Animations.confettiShower(host, 60, 2500);
+      };
+    }
   },
 
   // Get per-slot URL pasted by user (preserves slot index)
@@ -920,6 +974,8 @@ const App = {
     // Show recipient view
     const recipientView = document.getElementById('recipient-view');
     recipientView.style.display = 'block';
+    const occ = data.occasion || 'birthday';
+    recipientView.dataset.occasion = occ;
 
     // Apply gift language. The toggle stays visible on the gift page too,
     // so the birthday person can switch languages (their own words stay
@@ -979,6 +1035,23 @@ const App = {
       }
 
       galleryGrid.innerHTML = galleryHtml;
+
+      // Per-topic gallery heading
+      const galMeta = (this.occasionMeta[occ] || {}).galleryHead;
+      if (galMeta) {
+        const lang = this.state.lang || 'en';
+        const gh = galleryGrid.parentNode.querySelector('.recipient-gallery-heading');
+        if (gh) gh.textContent = t(galMeta, lang);
+      }
+    }
+
+    // Topic centerpiece (heart / bouquet / gift) for non-cake topics
+    this.renderCenterpiece(occ, this.state.lang);
+
+    // Closing hearts match the topic
+    const closingHearts = document.querySelector('#recipient-view .recipient-closing-hearts');
+    if (closingHearts) {
+      closingHearts.textContent = (this.occasionMeta[occ] || this.occasionMeta.birthday).closing;
     }
 
     // Cake only suits birthdays + anniversaries - hide it for other topics
@@ -1067,8 +1140,20 @@ const App = {
     const data = this.lastRecipientData;
     if (!data) return;
     data.lang = this.state.lang;
+    const lang = this.state.lang;
+    const occ = data.occasion || 'birthday';
     document.getElementById('recipient-greeting').textContent = Generator.getGreeting(data);
     document.getElementById('recipient-footer').textContent = Generator.getFooter(data);
+    const galMeta = (this.occasionMeta[occ] || {}).galleryHead;
+    if (galMeta) {
+      const gh = document.querySelector('#recipient-gallery .recipient-gallery-heading');
+      if (gh) gh.textContent = t(galMeta, lang);
+    }
+    const closingHearts = document.querySelector('#recipient-view .recipient-closing-hearts');
+    if (closingHearts) {
+      closingHearts.textContent = (this.occasionMeta[occ] || this.occasionMeta.birthday).closing;
+    }
+    this.renderCenterpiece(occ, lang);
     this.renderRecipientDetails(data);
   },
 

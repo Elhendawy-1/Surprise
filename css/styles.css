@@ -973,6 +973,98 @@ body {
   margin-top: 1.25rem;
 }
 
+/* Topic Centerpiece Section (valentine heart / thanks bouquet / surprise gift) */
+.recipient-centerpiece-section {
+  min-height: auto;
+  padding: 4rem 2rem;
+  background: rgba(0, 0, 0, 0.01);
+}
+
+.centerpiece-wrap {
+  max-width: 580px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  cursor: pointer;
+}
+
+.centerpiece-visual {
+  font-size: 5rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 6px 14px var(--shadow-lg));
+}
+
+.centerpiece-visual.beat {
+  animation: heartbeat 1.6s ease infinite;
+}
+
+.centerpiece-visual.sway {
+  animation: gentleBounce 2.6s ease infinite;
+}
+
+.centerpiece-visual.twinkle {
+  animation: sparkle 2.2s ease infinite;
+}
+
+.centerpiece-heading {
+  font-family: var(--font-script);
+  font-size: 2.5rem;
+  margin-bottom: 0.25rem;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.centerpiece-sub {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* Per-topic accents on the gift page */
+.recipient-view[data-occasion="valentine"] .recipient-message-card {
+  border-color: rgba(230, 57, 70, 0.5);
+  box-shadow: 0 10px 44px rgba(230, 57, 70, 0.28);
+}
+
+.recipient-view[data-occasion="anniversary"] .recipient-message-card {
+  border-color: rgba(212, 175, 55, 0.55);
+  box-shadow: 0 10px 44px rgba(212, 175, 55, 0.28);
+}
+
+.recipient-view[data-occasion="thankYou"] .recipient-message-card {
+  border-color: rgba(212, 163, 115, 0.55);
+  box-shadow: 0 10px 44px rgba(212, 163, 115, 0.3);
+}
+
+.recipient-view[data-occasion="justBecause"] .recipient-message-card {
+  border-color: rgba(201, 160, 220, 0.5);
+  box-shadow: 0 10px 44px rgba(201, 160, 220, 0.3);
+}
+
+/* Creator occasion banner */
+.occasion-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  max-width: 420px;
+  margin: 0 auto 1.5rem;
+  padding: 0.7rem 1.2rem;
+  border: 2px solid var(--primary);
+  border-radius: 50px;
+  background: var(--card-bg);
+  box-shadow: 0 4px 16px var(--shadow);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.occasion-banner-icon {
+  font-size: 1.4rem;
+}
+
 /* Gallery Section */
 .recipient-gallery-section {
   min-height: auto;

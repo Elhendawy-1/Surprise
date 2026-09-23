@@ -111,6 +111,10 @@
     <div class="section-inner">
       <h2 class="section-title" data-i18n="customTitle">Personalize your gift</h2>
       <p class="section-subtitle" data-i18n="customSubtitle">Fill in the details below</p>
+      <div class="occasion-banner" id="occasion-banner">
+        <span class="occasion-banner-icon" id="occasion-banner-icon">🎂</span>
+        <span id="occasion-banner-text"></span>
+      </div>
 
       <form id="customize-form" class="customize-form" onsubmit="return false;">
         <div class="form-group">
@@ -302,6 +306,15 @@
           <button type="button" id="btn-blow" class="btn-primary" data-i18n="blowBtn">Blow Out the Candles</button>
           <button type="button" id="btn-relight" class="btn-secondary" style="display:none;" data-i18n="relightBtn">Relight Candles</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Topic Centerpiece Section (valentine / thank-you / just-because) -->
+    <div class="recipient-section recipient-centerpiece-section" id="recipient-centerpiece" style="display:none;">
+      <div class="centerpiece-wrap reveal">
+        <div class="centerpiece-visual" id="centerpiece-visual"></div>
+        <h3 class="centerpiece-heading" id="centerpiece-heading"></h3>
+        <p class="centerpiece-sub" id="centerpiece-sub"></p>
       </div>
     </div>
 
