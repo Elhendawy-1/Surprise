@@ -443,6 +443,107 @@ body {
   color: var(--text-light);
 }
 
+/* Song choice box (pick + preview a site song) */
+.song-choice-box {
+  border: 2px solid var(--card-border);
+  border-radius: 12px;
+  background: var(--card-bg);
+  padding: 0.85rem 1rem;
+  margin-top: 0.85rem;
+  text-align: center;
+}
+
+.song-choice-current {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text);
+  margin-bottom: 0.6rem;
+}
+
+.song-choice-note {
+  font-size: 1.1rem;
+}
+
+#song-choice-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 70%;
+  font-style: italic;
+  color: var(--text-light);
+}
+
+.song-preview-btn {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.song-preview-btn:hover {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.song-preview-btn.playing {
+  animation: musicInvite 1.6s ease infinite;
+}
+
+#song-choice-picker {
+  margin-top: 0.75rem;
+  text-align: left;
+}
+
+.song-choice-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  border: 2px solid var(--card-border);
+  border-radius: 10px;
+  background: none;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.song-choice-item:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.song-choice-item.selected {
+  border-color: var(--primary);
+  background: var(--card-hover);
+}
+
+.song-choice-item .song-play-icon {
+  font-size: 1.1rem;
+  flex: 0 0 auto;
+}
+
+.song-choice-item .song-choice-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ===== Form Actions ===== */
 .form-actions {
   display: flex;

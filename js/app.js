@@ -19,6 +19,8 @@ const App = {
     photoUrls_fromFiles: {},
     photoUrls_fromInput: {},
     photoSlotSeq: 0,
+    songChoice: '',
+    songChoiceName: '',
     selectedTheme: 'classic'
   },
 
@@ -248,6 +250,19 @@ const App = {
     // Music controls
     document.getElementById('btn-music-toggle').addEventListener('click', () => {
       this.toggleMusic();
+    });
+
+    // Song choice (pick + preview a site song)
+    document.getElementById('song-choice-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      this.openSongChoice();
+    });
+    document.getElementById('song-choice-close').addEventListener('click', () => {
+      document.getElementById('song-choice-picker').style.display = 'none';
+    });
+    document.getElementById('song-choice-preview').addEventListener('click', (e) => {
+      e.preventDefault();
+      this.previewSongChoice();
     });
 
     // Name input triggers message regeneration
@@ -614,7 +629,116 @@ const App = {
     repo: 'Elhendawy-1/Surprise',
     path: 'assets/photos',
     cache: null,
+    musicCache: null,
     pendingSlot: null
+  },
+
+  // Song choice picker (songs stored in the repo - always play)
+  openSongChoice() {
+    const panel = document.getElementById('song-choice-picker');
+    const list = document.getElementById('song-choice-list');
+    const status = document.getElementById('song-choice-status');
+    if (!panel || !list || !status) return;
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    if (this.siteGallery.musicCache) {
+      this.renderSongChoice(this.siteGallery.musicCache);
+      return;
+    }
+
+    status.textContent = t('songSiteLoading', this.state.lang);
+    list.innerHTML = '';
+    fetch('https://api.github.com/repos/' + this.siteGallery.repo + '/contents/assets/music')
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(files => {
+        const songs = (Array.isArray(files) ? files : []).filter(f =>
+          f.type === 'file' && /\.(mp3|wav|ogg|m4a)$/i.test(f.name));
+        this.siteGallery.musicCache = songs;
+        this.renderSongChoice(songs);
+      })
+      .catch(() => {
+        status.textContent = t('songSiteEmpty', this.state.lang);
+      });
+  },
+
+  renderSongChoice(songs) {
+    const list = document.getElementById('song-choice-list');
+    const status = document.getElementById('song-choice-status');
+    if (!list || !status) return;
+    if (!songs.length) {
+      status.textContent = t('songSiteEmpty', this.state.lang);
+      list.innerHTML = '';
+      return;
+    }
+    status.textContent = t('songSiteTap', this.state.lang);
+    list.innerHTML = '';
+    songs.forEach(f => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'song-choice-item' + (this.state.songChoice === f.download_url ? ' selected' : '');
+      btn.title = f.name;
+      const icon = document.createElement('span');
+      icon.className = 'song-play-icon';
+      icon.textContent = '▶';
+      const name = document.createElement('span');
+      name.className = 'song-choice-title';
+      name.textContent = f.name;
+      btn.appendChild(icon);
+      btn.appendChild(name);
+      btn.addEventListener('click', () => this.pickSongChoice(f.download_url, f.name));
+      list.appendChild(btn);
+    });
+  },
+
+  pickSongChoice(url, name) {
+    this.state.songChoice = url;
+    this.state.songChoiceName = name || url;
+    const label = document.getElementById('song-choice-name');
+    if (label) label.textContent = this.state.songChoiceName;
+    this.stopSongPreview();
+    document.getElementById('song-choice-picker').style.display = 'none';
+    this.renderSongChoice(this.siteGallery.musicCache || []);
+  },
+
+  // Preview the chosen song right in the form (tap again to stop)
+  previewSongChoice() {
+    const btn = document.getElementById('song-choice-preview');
+    if (this.songPreviewAudio && !this.songPreviewAudio.paused) {
+      this.stopSongPreview();
+      return;
+    }
+    this.stopSongPreview();
+    const src = this.state.songChoice || 'assets/music/song.mp3';
+    const audio = new Audio();
+    audio.preload = 'auto';
+    audio.onerror = () => this.stopSongPreview();
+    audio.onended = () => this.stopSongPreview();
+    this.songPreviewAudio = audio;
+    audio.src = src;
+    audio.play().then(() => {
+      if (btn) {
+        btn.textContent = '⏹';
+        btn.classList.add('playing');
+      }
+    }).catch(() => this.stopSongPreview());
+  },
+
+  stopSongPreview() {
+    if (this.songPreviewAudio) {
+      try {
+        this.songPreviewAudio.pause();
+      } catch (e) { /* ignore */ }
+      this.songPreviewAudio = null;
+    }
+    const btn = document.getElementById('song-choice-preview');
+    if (btn) {
+      btn.textContent = '▶';
+      btn.classList.remove('playing');
+    }
   },
 
   // Per-topic identity: icon, centerpiece, gallery heading, closing hearts
@@ -741,6 +865,7 @@ const App = {
       message: message,
       theme: this.state.selectedTheme,
       music: document.getElementById('music-toggle').checked,
+      musicChoice: this.state.songChoice || '',
       photoUrls: allPhotoUrls,
       photoTexts: allPhotoTexts
     };
@@ -1113,7 +1238,10 @@ const App = {
         thankYou: ['https://upload.wikimedia.org/wikipedia/commons/2/2a/Gymnopedie_No._1_%28ISRC_USUAN1100787%29.mp3'],
         justBecause: ['https://upload.wikimedia.org/wikipedia/commons/6/63/Clair_de_Lune_-_Wright_Brass_-_United_States_Air_Force_Band_of_Flight.mp3']
       };
-      const tracks = (topicTracks[data.occasion] || []).concat(['assets/music/song.mp3']);
+      const tracks = []
+        .concat(data.musicChoice ? [data.musicChoice] : [])
+        .concat(topicTracks[data.occasion] || [])
+        .concat(['assets/music/song.mp3']);
       let trackIdx = 0;
       const loadTrack = () => {
         if (audioSource) audioSource.src = tracks[trackIdx];
@@ -1449,6 +1577,13 @@ const App = {
     this.setMessageMode('auto');
     document.getElementById('custom-message').value = '';
     document.getElementById('music-toggle').checked = true;
+    this.state.songChoice = '';
+    this.state.songChoiceName = '';
+    this.stopSongPreview();
+    const songName = document.getElementById('song-choice-name');
+    if (songName) songName.textContent = t('songDefaultName', this.state.lang);
+    const songPicker = document.getElementById('song-choice-picker');
+    if (songPicker) songPicker.style.display = 'none';
 
     // Reset recipient view sections
     document.getElementById('recipient-gallery').style.display = 'none';
