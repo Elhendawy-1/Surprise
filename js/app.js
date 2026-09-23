@@ -1101,29 +1101,61 @@ const App = {
 
     // Music: browsers block autoplay, so show a clear tap-to-play
     // prompt. The first tap starts the song for sure.
+    // Each topic gets its own recommended track; the bundled song
+    // is the fallback if a stream fails.
     if (data.music !== false) {
       const musicEl = document.getElementById('bg-music');
+      const audioSource = musicEl.querySelector('source');
+      const topicTracks = {
+        birthday: [],
+        valentine: ['https://upload.wikimedia.org/wikipedia/commons/3/3e/Audionautix-com-ccby-furelise.mp3'],
+        anniversary: ['https://upload.wikimedia.org/wikipedia/commons/e/e5/Johann_Pachelbel_Canon_P_37_1694.mp3'],
+        thankYou: ['https://upload.wikimedia.org/wikipedia/commons/2/2a/Gymnopedie_No._1_%28ISRC_USUAN1100787%29.mp3'],
+        justBecause: ['https://upload.wikimedia.org/wikipedia/commons/6/63/Clair_de_Lune_-_Wright_Brass_-_United_States_Air_Force_Band_of_Flight.mp3']
+      };
+      const tracks = (topicTracks[data.occasion] || []).concat(['assets/music/song.mp3']);
+      let trackIdx = 0;
+      const loadTrack = () => {
+        if (audioSource) audioSource.src = tracks[trackIdx];
+        else musicEl.src = tracks[trackIdx];
+        musicEl.load();
+      };
       const prompt = document.getElementById('music-prompt');
+      const toggle = document.getElementById('btn-music-toggle');
+      const showPaused = () => {
+        toggle.textContent = '▶';
+        toggle.classList.remove('playing');
+      };
       const hideMusicUi = () => {
         document.getElementById('music-controls').style.display = 'none';
         if (prompt) prompt.style.display = 'none';
       };
-      // If the audio file is missing (404), keep music UI hidden
-      const audioSource = musicEl.querySelector('source');
-      if (audioSource) {
-        audioSource.addEventListener('error', hideMusicUi, { once: true });
-      }
-      musicEl.addEventListener('error', hideMusicUi, { once: true });
+      let hasPlayed = false;
+      const showPlaying = () => {
+        hasPlayed = true;
+        if (prompt) prompt.style.display = 'none';
+        document.getElementById('music-controls').style.display = 'block';
+        toggle.textContent = '⏸';
+        toggle.classList.remove('play-hint');
+        toggle.classList.add('playing');
+      };
+      musicEl.addEventListener('error', () => {
+        if (hasPlayed && musicEl.currentTime > 0) {
+          musicEl.play().catch(() => {});
+          return;
+        }
+        if (trackIdx < tracks.length - 1) {
+          trackIdx++;
+          loadTrack();
+        } else {
+          hideMusicUi();
+        }
+      });
+      loadTrack();
 
       const startMusic = () => {
         if (!musicEl.paused) return;
-        musicEl.play().then(() => {
-          if (prompt) prompt.style.display = 'none';
-          document.getElementById('music-controls').style.display = 'block';
-          const toggle = document.getElementById('btn-music-toggle');
-          toggle.textContent = '\u266B';
-          toggle.classList.remove('play-hint');
-        }).catch(() => {});
+        musicEl.play().then(showPlaying).catch(() => {});
       };
 
       if (prompt) {
@@ -1132,9 +1164,18 @@ const App = {
       } else {
         document.getElementById('music-controls').style.display = 'block';
       }
-      document.getElementById('btn-music-toggle').classList.add('play-hint');
+      toggle.classList.add('play-hint');
       // Fallback: any first tap anywhere also starts the music
       document.addEventListener('click', startMusic, { once: true });
+      // Dynamic play/stop toggle
+      toggle.onclick = () => {
+        if (musicEl.paused) {
+          musicEl.play().then(showPlaying).catch(() => {});
+        } else {
+          musicEl.pause();
+          showPaused();
+        }
+      };
     }
 
     // Opening celebration: heart + flower burst, petal shower,
