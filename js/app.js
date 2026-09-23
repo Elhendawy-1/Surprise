@@ -357,10 +357,13 @@ const App = {
     if (img) img.removeAttribute('src');
     document.getElementById(`photo-preview-${slot}`).style.display = 'none';
     document.getElementById(`photo-placeholder-${slot}`).style.display = 'flex';
-    // If a URL is still pasted, restore its preview
+    // If a URL is still pasted, restore its preview (and status);
+    // otherwise clear any stale status text.
     const urlInput = document.querySelector(`.photo-url-input[data-slot="${slot}"]`);
     if (urlInput && urlInput.value.trim()) {
       this.handlePhotoUrlInput(urlInput.value.trim(), slot);
+    } else {
+      this.setUrlStatus(slot, false, '');
     }
   },
 
@@ -554,7 +557,10 @@ const App = {
     for (let i = 0; i < 5; i++) {
       const caption = this.getCaptionForSlot(i);
       if (this.state.photos[i]) {
-        const localSrc = document.getElementById(`photo-preview-img-${i}`)?.src;
+        const localImg = document.getElementById(`photo-preview-img-${i}`);
+        // hasAttribute guard: without a src attribute, .src returns the
+        // page URL - never use that as a photo.
+        const localSrc = (localImg && localImg.hasAttribute('src')) ? localImg.src : '';
         if (localSrc) {
           previewUrls.push(localSrc);
           previewTexts.push(caption);
@@ -878,6 +884,7 @@ const App = {
       musicEl.addEventListener('error', hideMusicUi, { once: true });
 
       const startMusic = () => {
+        if (!musicEl.paused) return;
         musicEl.play().then(() => {
           if (prompt) prompt.style.display = 'none';
           document.getElementById('music-controls').style.display = 'block';
@@ -912,6 +919,7 @@ const App = {
         Animations.stopFloatingHearts();
         Animations.startFloatingHearts(recipientView, 1400);
         Animations.startPetalDrift(recipientView, 2800);
+        Animations.startBalloonDrift(recipientView, 5200);
       }
     });
   },
@@ -998,6 +1006,7 @@ const App = {
       if (textInput) textInput.value = '';
       const urlInput = document.querySelector('.photo-url-input[data-slot="' + i + '"]');
       if (urlInput) urlInput.value = '';
+      this.setUrlStatus(i, false, '');
     }
 
     this.setMessageMode('auto');

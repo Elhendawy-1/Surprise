@@ -56,6 +56,12 @@ const Share = {
     return null;
   },
 
+  // Scale so the LARGEST side fits maxWidth (tall portraits included)
+  fitWithin(w, h, maxWidth) {
+    const scale = Math.min(1, maxWidth / Math.max(w, h));
+    return { width: Math.round(w * scale), height: Math.round(h * scale) };
+  },
+
   async compressImage(file, maxWidth = 800, quality = 0.8) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -64,12 +70,9 @@ const Share = {
         img.onload = () => {
           try {
             const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            if (width > maxWidth) {
-              height = (height * maxWidth) / width;
-              width = maxWidth;
-            }
+            const size = this.fitWithin(img.width, img.height, maxWidth);
+            const width = size.width;
+            const height = size.height;
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
@@ -108,12 +111,9 @@ const Share = {
       img.onerror = () => reject(new Error('Cannot decode image (HEIC photos are not supported - use JPEG or a screenshot)'));
       img.src = dataUrl;
     });
-    let width = dims.w;
-    let height = dims.h;
-    if (width > maxWidth) {
-      height = Math.round((height * maxWidth) / width);
-      width = maxWidth;
-    }
+    const size = this.fitWithin(dims.w, dims.h, maxWidth);
+    let width = size.width;
+    let height = size.height;
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
@@ -177,8 +177,7 @@ const Share = {
         .then(response => {
           if (!response.ok) {
             clearTimeout(timeoutId);
-            reject(new Error('HTTP ' + response.status));
-            return;
+            throw new Error('HTTP ' + response.status);
           }
           const ct = response.headers.get('content-type');
           if (ct && ct.includes('application/json')) {

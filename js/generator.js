@@ -67,7 +67,8 @@ const Generator = {
       age--;
     }
     const nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
-    if (nextBirthday < today) {
+    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    if (nextBirthday < startOfToday) {
       nextBirthday.setFullYear(nextBirthday.getFullYear() + 1);
     }
     const daysUntil = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
