@@ -853,6 +853,17 @@ const App = {
     setTimeout(() => {
       Animations.startCelebration(recipientView);
     }, 500);
+
+    // Phones often throttle timers while the tab is in the background,
+    // which can silently eat the celebration. Restart the ambient
+    // hearts + petals whenever the gift tab becomes visible again.
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && recipientView.style.display === 'block') {
+        Animations.stopFloatingHearts();
+        Animations.startFloatingHearts(recipientView, 1400);
+        Animations.startPetalDrift(recipientView, 2800);
+      }
+    });
   },
 
   // Smooth scroll-triggered reveals for the gift page:
