@@ -587,29 +587,44 @@ const App = {
       this.state.photoUrls_fromFiles = uploadedUrls;
 
       // Last resort for device photos that failed to upload:
-      // embed small thumbnails directly in the link (no hosting needed).
+      // embed thumbnails directly in the link (no hosting needed).
+      // Tries bigger thumbnails first, then smaller ones, so that
+      // EVERY photo gets in whenever the link budget allows.
       let embedded = 0;
+      const skipped = [];
+      let heicWarned = false;
+      const tiers = [{ w: 384, q: 0.55 }, { w: 256, q: 0.5 }, { w: 192, q: 0.5 }];
       for (let i = 0; i < this.state.photos.length; i++) {
         if (this.state.photos[i] && !uploadedUrls[i]) {
           this.setLoadingStatus('Upload blocked - packing photo ' + (i + 1) + ' into the link...');
-          try {
-            const thumb = await Share.makeThumbnailDataUrl(this.state.photos[i]);
-            if (!thumb) continue;
-            uploadedUrls[i] = thumb;
-            this.state.photoUrls_fromFiles = uploadedUrls;
-            const trialLength = Share.generateFullUrl(this.collectData()).length;
-            if (trialLength <= (Share.imageHost.maxEmbedLinkLength || 60000)) {
-              embedded++;
-              console.log('Photo ' + (i + 1) + ' embedded (' + thumb.length + ' chars)');
-            } else {
-              uploadedUrls[i] = null; // too big - would break sharing
-              console.warn('Photo ' + (i + 1) + ' too big to embed, skipped');
+          let placed = false;
+          for (const t of tiers) {
+            try {
+              const thumb = await Share.makeThumbnailDataUrl(this.state.photos[i], t.w, t.q);
+              if (!thumb) continue;
+              uploadedUrls[i] = thumb;
+              this.state.photoUrls_fromFiles = uploadedUrls;
+              const trialLength = Share.generateFullUrl(this.collectData()).length;
+              if (trialLength <= (Share.imageHost.maxEmbedLinkLength || 60000)) {
+                embedded++;
+                placed = true;
+                console.log('Photo ' + (i + 1) + ' embedded at ' + t.w + 'px (' + thumb.length + ' chars)');
+                break;
+              }
+              uploadedUrls[i] = null; // too big at this size - try smaller tier
+            } catch (thumbErr) {
+              console.warn('Photo ' + (i + 1) + ' embed failed:', thumbErr && thumbErr.message);
+              if (!heicWarned && thumbErr && /HEIC/i.test(thumbErr.message || '')) {
+                heicWarned = true;
+                alert('One photo looks like an iPhone HEIC image, which browsers cannot display.\n\nPlease open the photo, take a screenshot of it, and use the screenshot instead (screenshots are JPEG and always work).');
+              }
+              break; // decode errors won't improve with smaller tiers
             }
-          } catch (thumbErr) {
-            console.warn('Photo ' + (i + 1) + ' embed failed:', thumbErr && thumbErr.message);
-            if (thumbErr && /HEIC/i.test(thumbErr.message || '')) {
-              alert('One photo looks like an iPhone HEIC image, which browsers cannot display.\n\nPlease open the photo, take a screenshot of it, and use the screenshot instead (screenshots are JPEG and always work).');
-            }
+          }
+          if (!placed) {
+            uploadedUrls[i] = null;
+            skipped.push(i + 1);
+            console.warn('Photo ' + (i + 1) + ' could not fit into the link, skipped');
           }
         }
       }
@@ -633,9 +648,14 @@ const App = {
       // Update share section
       document.getElementById('share-link').value = shortUrl;
       document.getElementById('qr-image').src = Share.getQrCodeUrl(shortUrl);
-      if (embedded > 0) {
+      const photoCount = finalData.photoUrls.length;
+      if (embedded > 0 && skipped.length === 0) {
         document.querySelector('#section-share .section-subtitle').textContent =
-          'Share this link with the birthday person. Photos are packed inside this link - use the Copy button (the QR code may be too dense to scan).';
+          'Share this link with the birthday person. All ' + photoCount + ' photo(s) are packed inside this link - use the Copy button (the QR code may be too dense to scan).';
+      } else if (skipped.length > 0) {
+        document.querySelector('#section-share .section-subtitle').textContent =
+          'Share this link with the birthday person. Photo(s) ' + skipped.join(', ') + ' did not fit - add them via "Choose from site gallery" for guaranteed display.';
+        alert('Photo(s) ' + skipped.join(', ') + ' could not fit into the link.\n\nTo include them: upload those photos to the assets/photos folder in your GitHub repo, then use "Choose from site gallery".');
       }
 
       this.showSection('share');
