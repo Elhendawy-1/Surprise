@@ -307,6 +307,17 @@ const App = {
       card.classList.toggle('selected', card.dataset.occasion === occasion);
     });
 
+    // Mom and Dad are birthday-only. For every other topic they are
+    // hidden, and any previous pick of them is cleared.
+    const familyOK = occasion === 'birthday';
+    document.querySelectorAll('#relationship-grid .card').forEach(card => {
+      const isFamily = card.dataset.relationship === 'mom' || card.dataset.relationship === 'dad';
+      card.style.display = (!familyOK && isFamily) ? 'none' : '';
+      card.classList.remove('selected');
+    });
+    this.state.relationship = null;
+    document.getElementById('custom-relationship-wrap').style.display = 'none';
+
     // Small delay for visual feedback
     setTimeout(() => {
       this.showSection('relationship');
@@ -1360,6 +1371,7 @@ const App = {
 
     // Reset UI
     document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('#relationship-grid .card').forEach(c => { c.style.display = ''; });
     document.getElementById('custom-relationship-wrap').style.display = 'none';
     document.getElementById('custom-relationship').value = '';
     document.querySelectorAll('.theme-swatch.active').forEach(s => {
