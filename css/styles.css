@@ -841,10 +841,12 @@ body {
 
 .recipient-gallery-item img {
   width: 100%;
-  height: 340px;
-  object-fit: cover;
+  height: auto;
+  max-height: 75vh;
+  object-fit: contain;
   display: block;
-  transform: scale(1.06);
+  background: #000;
+  transform: scale(1.03);
   transition: transform 0.9s ease;
 }
 
@@ -857,7 +859,8 @@ body {
 }
 
 .recipient-gallery-item.full-width img {
-  height: 340px;
+  height: auto;
+  max-height: 75vh;
 }
 
 /* Message Section */
@@ -1074,7 +1077,8 @@ body {
 
   .recipient-gallery-item img,
   .recipient-gallery-item.full-width img {
-    height: 240px;
+    height: auto;
+    max-height: 60vh;
   }
 
   .recipient-gallery-heading {
