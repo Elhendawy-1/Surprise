@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="classic">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Send Love & Warmth</title>
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:wght@400;500;600&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- SECTION 1: Hero / Landing -->
+  <section id="section-hero" class="section active">
+    <div class="hero-content">
+      <div class="hero-hearts" id="hero-hearts"></div>
+      <h1 class="hero-title">
+        <span class="script-text">Send</span>
+        <span class="script-text">Love</span>
+        <span class="ampersand">&amp;</span>
+        <span class="script-text">Warmth</span>
+      </h1>
+      <p class="hero-subtitle">Create a personalized digital gift for someone special</p>
+      <button id="btn-start" class="btn-primary">Create a Gift</button>
+    </div>
+  </section>
+
+  <!-- SECTION 2: Choose Relationship -->
+  <section id="section-relationship" class="section">
+    <div class="section-inner">
+      <h2 class="section-title">Who is this for?</h2>
+      <p class="section-subtitle">Choose a relationship</p>
+      <div class="card-grid" id="relationship-grid">
+        <button class="card" data-relationship="mom">
+          <span class="card-icon">&#127801;</span>
+          <span class="card-label">Mom</span>
+        </button>
+        <button class="card" data-relationship="sister">
+          <span class="card-icon">&#127800;</span>
+          <span class="card-label">Sister</span>
+        </button>
+        <button class="card" data-relationship="aunt">
+          <span class="card-icon">&#127799;</span>
+          <span class="card-label">Aunt</span>
+        </button>
+        <button class="card" data-relationship="dad">
+          <span class="card-icon">&#127775;</span>
+          <span class="card-label">Dad</span>
+        </button>
+        <button class="card" data-relationship="friend">
+          <span class="card-icon">&#128149;</span>
+          <span class="card-label">Friend</span>
+        </button>
+        <button class="card" data-relationship="partner">
+          <span class="card-icon">&#128148;</span>
+          <span class="card-label">Partner</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: Choose Occasion -->
+  <section id="section-occasion" class="section">
+    <div class="section-inner">
+      <h2 class="section-title">What's the occasion?</h2>
+      <p class="section-subtitle">Choose an occasion</p>
+      <div class="card-grid" id="occasion-grid">
+        <button class="card" data-occasion="birthday">
+          <span class="card-icon">&#127874;</span>
+          <span class="card-label">Birthday</span>
+        </button>
+        <button class="card" data-occasion="thankYou">
+          <span class="card-icon">&#128591;</span>
+          <span class="card-label">Thank You</span>
+        </button>
+        <button class="card" data-occasion="justBecause">
+          <span class="card-icon">&#128140;</span>
+          <span class="card-label">Just Because</span>
+        </button>
+        <button class="card" data-occasion="anniversary">
+          <span class="card-icon">&#127881;</span>
+          <span class="card-label">Anniversary</span>
+        </button>
+        <button class="card" data-occasion="appreciation">
+          <span class="card-icon">&#10084;&#65039;</span>
+          <span class="card-label">Appreciation</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: Customize -->
+  <section id="section-customize" class="section">
+    <div class="section-inner">
+      <h2 class="section-title">Personalize your gift</h2>
+      <p class="section-subtitle">Fill in the details below</p>
+
+      <form id="customize-form" class="customize-form" onsubmit="return false;">
+        <div class="form-group">
+          <label for="recipient-name">Recipient's Name</label>
+          <input type="text" id="recipient-name" placeholder="Enter their name" required>
+        </div>
+
+        <div class="form-group occasion-field" data-for="birthday" style="display:none;">
+          <label for="birthday-date">Date of Birth</label>
+          <input type="date" id="birthday-date">
+        </div>
+
+        <div class="form-group occasion-field" data-for="anniversary" style="display:none;">
+          <label for="anniversary-date">Anniversary Date</label>
+          <input type="date" id="anniversary-date">
+        </div>
+        <div class="form-group occasion-field" data-for="anniversary" style="display:none;">
+          <label for="years-together">Years Together (optional)</label>
+          <input type="number" id="years-together" min="1" max="100" placeholder="e.g., 5">
+        </div>
+
+        <div class="form-group occasion-field" data-for="thankYou" style="display:none;">
+          <label for="thank-you-reason">What are you thanking them for?</label>
+          <input type="text" id="thank-you-reason" placeholder="e.g., always being there for me">
+        </div>
+
+        <div class="form-group occasion-field" data-for="appreciation" style="display:none;">
+          <label for="appreciation-reason">What do you appreciate about them?</label>
+          <input type="text" id="appreciation-reason" placeholder="e.g., your kindness and support">
+        </div>
+
+        <div class="form-group">
+          <label>Photos (optional) - Add up to 5 images</label>
+          <p class="form-hint">Upload a file OR paste an image URL (from imgur, Google Photos, etc.)</p>
+          <div class="photos-grid" id="photos-grid">
+            <div class="photo-slot" data-slot="0">
+              <div class="photo-upload-area" id="photo-upload-area-0">
+                <input type="file" accept="image/*" class="file-input photo-file-input" data-slot="0">
+                <div class="photo-preview" id="photo-preview-0" style="display:none;">
+                  <img id="photo-preview-img-0" src="" alt="Preview">
+                  <button type="button" class="btn-remove photo-remove-btn" data-slot="0">&times;</button>
+                </div>
+                <div class="photo-placeholder" id="photo-placeholder-0">
+                  <span class="upload-icon">&#128247;</span>
+                  <span>+ Add Photo</span>
+                </div>
+              </div>
+              <input type="text" class="photo-url-input" data-slot="0" placeholder="Or paste image URL here">
+              <input type="text" class="photo-text-input" data-slot="0" placeholder="Caption (optional)">
+            </div>
+            <div class="photo-slot" data-slot="1">
+              <div class="photo-upload-area" id="photo-upload-area-1">
+                <input type="file" accept="image/*" class="file-input photo-file-input" data-slot="1">
+                <div class="photo-preview" id="photo-preview-1" style="display:none;">
+                  <img id="photo-preview-img-1" src="" alt="Preview">
+                  <button type="button" class="btn-remove photo-remove-btn" data-slot="1">&times;</button>
+                </div>
+                <div class="photo-placeholder" id="photo-placeholder-1">
+                  <span class="upload-icon">&#128247;</span>
+                  <span>+ Add Photo</span>
+                </div>
+              </div>
+              <input type="text" class="photo-url-input" data-slot="1" placeholder="Or paste image URL here">
+              <input type="text" class="photo-text-input" data-slot="1" placeholder="Caption (optional)">
+            </div>
+            <div class="photo-slot" data-slot="2">
+              <div class="photo-upload-area" id="photo-upload-area-2">
+                <input type="file" accept="image/*" class="file-input photo-file-input" data-slot="2">
+                <div class="photo-preview" id="photo-preview-2" style="display:none;">
+                  <img id="photo-preview-img-2" src="" alt="Preview">
+                  <button type="button" class="btn-remove photo-remove-btn" data-slot="2">&times;</button>
+                </div>
+                <div class="photo-placeholder" id="photo-placeholder-2">
+                  <span class="upload-icon">&#128247;</span>
+                  <span>+ Add Photo</span>
+                </div>
+              </div>
+              <input type="text" class="photo-url-input" data-slot="2" placeholder="Or paste image URL here">
+              <input type="text" class="photo-text-input" data-slot="2" placeholder="Caption (optional)">
+            </div>
+            <div class="photo-slot" data-slot="3">
+              <div class="photo-upload-area" id="photo-upload-area-3">
+                <input type="file" accept="image/*" class="file-input photo-file-input" data-slot="3">
+                <div class="photo-preview" id="photo-preview-3" style="display:none;">
+                  <img id="photo-preview-img-3" src="" alt="Preview">
+                  <button type="button" class="btn-remove photo-remove-btn" data-slot="3">&times;</button>
+                </div>
+                <div class="photo-placeholder" id="photo-placeholder-3">
+                  <span class="upload-icon">&#128247;</span>
+                  <span>+ Add Photo</span>
+                </div>
+              </div>
+              <input type="text" class="photo-url-input" data-slot="3" placeholder="Or paste image URL here">
+              <input type="text" class="photo-text-input" data-slot="3" placeholder="Caption (optional)">
+            </div>
+            <div class="photo-slot" data-slot="4">
+              <div class="photo-upload-area" id="photo-upload-area-4">
+                <input type="file" accept="image/*" class="file-input photo-file-input" data-slot="4">
+                <div class="photo-preview" id="photo-preview-4" style="display:none;">
+                  <img id="photo-preview-img-4" src="" alt="Preview">
+                  <button type="button" class="btn-remove photo-remove-btn" data-slot="4">&times;</button>
+                </div>
+                <div class="photo-placeholder" id="photo-placeholder-4">
+                  <span class="upload-icon">&#128247;</span>
+                  <span>+ Add Photo</span>
+                </div>
+              </div>
+              <input type="text" class="photo-url-input" data-slot="4" placeholder="Or paste image URL here">
+              <input type="text" class="photo-text-input" data-slot="4" placeholder="Caption (optional)">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Message</label>
+          <div class="toggle-group">
+            <button type="button" class="toggle-btn active" data-mode="auto">Auto-generate</button>
+            <button type="button" class="toggle-btn" data-mode="custom">Write my own</button>
+          </div>
+        </div>
+
+        <div class="form-group" id="auto-message-group">
+          <label>Generated Message</label>
+          <div class="message-preview" id="auto-message-preview"></div>
+        </div>
+
+        <div class="form-group" id="custom-message-group" style="display:none;">
+          <label for="custom-message">Your Message</label>
+          <textarea id="custom-message" rows="6" placeholder="Write your heartfelt message here..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Choose a Theme</label>
+          <div class="theme-grid" id="theme-grid">
+            <button type="button" class="theme-swatch active" data-theme="classic" title="Classic Romantic">
+              <span class="swatch-color" style="background: linear-gradient(135deg, #e63946, #ffd700);"></span>
+              <span class="swatch-label">Classic</span>
+            </button>
+            <button type="button" class="theme-swatch" data-theme="soft" title="Soft Romantic">
+              <span class="swatch-color" style="background: linear-gradient(135deg, #f8a4c8, #fcd5ce);"></span>
+              <span class="swatch-label">Soft</span>
+            </button>
+            <button type="button" class="theme-swatch" data-theme="deep" title="Deep Romantic">
+              <span class="swatch-color" style="background: linear-gradient(135deg, #800020, #d4af37);"></span>
+              <span class="swatch-label">Deep</span>
+            </button>
+            <button type="button" class="theme-swatch" data-theme="dark" title="Dark Romantic">
+              <span class="swatch-color" style="background: linear-gradient(135deg, #2d0a0a, #c9a0dc);"></span>
+              <span class="swatch-label">Dark</span>
+            </button>
+            <button type="button" class="theme-swatch" data-theme="elegant" title="Elegant">
+              <span class="swatch-color" style="background: linear-gradient(135deg, #333333, #d4af37);"></span>
+              <span class="swatch-label">Elegant</span>
+            </button>
+            <button type="button" class="theme-swatch" data-theme="warm" title="Warm and Cozy">
+              <span class="swatch-color" style="background: linear-gradient(135deg, #d4a373, #e9edc9);"></span>
+              <span class="swatch-label">Warm</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Background Music</label>
+          <div class="music-toggle">
+            <label class="switch">
+              <input type="checkbox" id="music-toggle" checked>
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label">Include background music</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="btn-back-customize" class="btn-secondary">Back</button>
+          <button type="button" id="btn-preview" class="btn-primary">Preview Gift</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- SECTION 5: Preview -->
+  <section id="section-preview" class="section">
+    <div class="section-inner">
+      <h2 class="section-title">Preview Your Gift</h2>
+      <p class="section-subtitle">This is what the recipient will see</p>
+      <div class="preview-frame" id="preview-frame">
+        <div class="preview-content" id="preview-content"></div>
+      </div>
+      <div class="form-actions">
+        <button type="button" id="btn-back-preview" class="btn-secondary">Back to Edit</button>
+        <button type="button" id="btn-generate" class="btn-primary">Generate Link</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: Share -->
+  <section id="section-share" class="section">
+    <div class="section-inner">
+      <h2 class="section-title">Your Gift is Ready!</h2>
+      <p class="section-subtitle">Share this link with your loved one</p>
+      <div class="share-box">
+        <div class="share-link-container">
+          <input type="text" id="share-link" class="share-link" readonly>
+          <button type="button" id="btn-copy" class="btn-copy">Copy</button>
+        </div>
+        <div class="share-qr" id="share-qr">
+          <img id="qr-image" src="" alt="QR Code">
+        </div>
+        <div class="share-actions">
+          <button type="button" id="btn-open-link" class="btn-secondary">Open in New Tab</button>
+          <button type="button" id="btn-new-gift" class="btn-primary">Create Another Gift</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recipient View (shown when link is opened) - Scrolling Page -->
+  <div id="recipient-view" class="recipient-view" style="display:none;">
+    <div class="recipient-bg" id="recipient-bg"></div>
+
+    <!-- Hero Section -->
+    <div class="recipient-section recipient-hero-section" id="recipient-hero">
+      <div class="recipient-hero-content">
+        <div class="recipient-main-photo" id="recipient-main-photo" style="display:none;">
+          <img id="recipient-main-photo-img" src="" alt="">
+        </div>
+        <div class="recipient-greeting" id="recipient-greeting"></div>
+        <div class="recipient-scroll-hint">
+          <span>Scroll down to read your message</span>
+          <div class="scroll-arrow">&#8595;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Photo Gallery Section -->
+    <div class="recipient-section recipient-gallery-section" id="recipient-gallery" style="display:none;">
+      <div class="recipient-gallery" id="recipient-gallery-grid"></div>
+    </div>
+
+    <!-- Message Section -->
+    <div class="recipient-section recipient-message-section">
+      <div class="recipient-message-card">
+        <div class="recipient-message" id="recipient-message"></div>
+        <div class="recipient-footer" id="recipient-footer"></div>
+      </div>
+    </div>
+
+    <!-- Occasion Details Section -->
+    <div class="recipient-section recipient-details-section" id="recipient-details" style="display:none;">
+      <div class="recipient-details-card" id="recipient-details-content"></div>
+    </div>
+
+    <!-- Footer Section -->
+    <div class="recipient-section recipient-closing-section">
+      <div class="recipient-closing">
+        <div class="recipient-closing-hearts">&#10084; &#10084; &#10084;</div>
+        <div class="recipient-closing-text" id="recipient-closing-text">Made with love</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="assets/music/song.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Music Controls -->
+  <div class="music-controls" id="music-controls" style="display:none;">
+    <button id="btn-music-toggle" class="btn-music" title="Play/Pause Music">&#128264;</button>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loading-overlay" style="display:none;">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Creating your gift...</p>
+  </div>
+
+  <script src="js/animations.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
