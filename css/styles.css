@@ -720,10 +720,12 @@ body {
   z-index: 1;
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 4rem 2rem;
   box-sizing: border-box;
+  text-align: center;
 }
 
 /* Hero Section */
@@ -736,6 +738,7 @@ body {
   text-align: center;
   max-width: 600px;
   width: 100%;
+  margin: 0 auto;
 }
 
 .recipient-main-photo {
@@ -808,6 +811,7 @@ body {
 .recipient-gallery-wrap {
   max-width: 560px;
   width: 100%;
+  margin: 0 auto;
   text-align: center;
 }
 
@@ -884,12 +888,15 @@ body {
 
 .recipient-message-card {
   max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   padding: 3rem;
   box-shadow: 0 10px 40px var(--shadow);
+  box-sizing: border-box;
 }
 
 .recipient-message {
@@ -917,12 +924,15 @@ body {
 
 .recipient-details-card {
   max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   padding: 2rem;
   text-align: center;
+  box-sizing: border-box;
 }
 
 .recipient-details-card .detail-label {
@@ -945,6 +955,9 @@ body {
 
 .recipient-closing {
   text-align: center;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .recipient-closing-hearts {
