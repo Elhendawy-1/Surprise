@@ -122,6 +122,8 @@ const I18N = {
     relFriend: 'Friend',
     relHusband: 'Husband',
     relWife: 'Wife',
+    relBoyfriend: 'Boyfriend',
+    relGirlfriend: 'Girlfriend',
     relOther: 'Other'
   },
   ar: {
@@ -245,6 +247,8 @@ const I18N = {
     relFriend: 'صديق',
     relHusband: 'زوج',
     relWife: 'زوجة',
+    relBoyfriend: 'حبيب',
+    relGirlfriend: 'حبيبة',
     relOther: 'شخص آخر'
   }
 };
