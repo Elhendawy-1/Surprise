@@ -6,9 +6,10 @@ const Share = {
     // so browser uploads must go through a proxy)
     corsProxies: [
       'https://api.allorigins.win/raw?url=',
-      'https://api.codetabs.com/v1/proxy?quest=',
-      'https://corsproxy.io/?url='
+      'https://api.codetabs.com/v1/proxy?quest='
     ],
+    // Hard cap: embedded thumbnails must keep the full link under this length
+    maxEmbedLinkLength: 60000,
     services: {
       picrd: {
         uploadUrl: 'https://picrd.com/api/upload',
@@ -92,6 +93,45 @@ const Share = {
     });
   },
 
+  // Build a small thumbnail data-URL for embedding directly in the link.
+  // Last resort when every upload host fails - no network needed.
+  async makeThumbnailDataUrl(file, maxWidth = 384, quality = 0.55) {
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+    const dims = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve({ w: img.width, h: img.height, src: dataUrl });
+      img.onerror = () => reject(new Error('Cannot decode image (HEIC photos are not supported - use JPEG or a screenshot)'));
+      img.src = dataUrl;
+    });
+    let width = dims.w;
+    let height = dims.h;
+    if (width > maxWidth) {
+      height = Math.round((height * maxWidth) / width);
+      width = maxWidth;
+    }
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        } catch (err) {
+          reject(err);
+        }
+      };
+      img.onerror = () => reject(new Error('Cannot decode image'));
+      img.src = dims.src;
+    });
+  },
+
   async uploadToService(serviceName, file) {
     const service = this.imageHost.services[serviceName];
 
@@ -131,7 +171,7 @@ const Share = {
       const timeoutId = setTimeout(() => {
         controller.abort();
         reject(new Error('Request timeout'));
-      }, 30000);
+      }, 15000);
 
       fetch(url, { method, body, signal: controller.signal })
         .then(response => {

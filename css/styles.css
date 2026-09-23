@@ -998,6 +998,15 @@ body {
   font-size: 1.1rem;
 }
 
+.loading-sub {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+  max-width: 320px;
+  text-align: center;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   .hero-title {

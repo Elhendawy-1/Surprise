@@ -231,6 +231,9 @@ const App = {
       alert('Image must be under 10MB.');
       return;
     }
+    if (/heic|heif/i.test(file.type) || /\.hei[c f]$/i.test(file.name || '')) {
+      alert('This looks like an iPhone HEIC photo, which most browsers cannot display.\n\nFor best results: open the photo and take a screenshot, then use the screenshot instead.');
+    }
 
     this.state.photos[slot] = file;
     // Clear any uploaded URL cache for this slot so fresh upload happens
@@ -547,16 +550,26 @@ const App = {
     this.showSection('preview');
   },
 
+  setLoadingStatus(text) {
+    const el = document.getElementById('loading-status');
+    if (el) el.textContent = text || '';
+  },
+
   // Generate share link
   async generateLink() {
     // Show loading
     document.getElementById('loading-overlay').style.display = 'flex';
+    this.setLoadingStatus('Preparing...');
 
     try {
       // Upload file-based photos (non-blocking - continue even if uploads fail)
       const uploadedUrls = [];
+      const fileCount = this.state.photos.filter(Boolean).length;
+      let done = 0;
       for (let i = 0; i < this.state.photos.length; i++) {
         if (this.state.photos[i]) {
+          done++;
+          this.setLoadingStatus('Uploading photo ' + done + ' of ' + fileCount + '...');
           try {
             console.log('Uploading photo ' + (i + 1) + '...');
             const url = await Share.uploadImage(this.state.photos[i]);
@@ -573,31 +586,64 @@ const App = {
       }
       this.state.photoUrls_fromFiles = uploadedUrls;
 
-      // Re-collect data with uploaded URLs
+      // Last resort for device photos that failed to upload:
+      // embed small thumbnails directly in the link (no hosting needed).
+      let embedded = 0;
+      for (let i = 0; i < this.state.photos.length; i++) {
+        if (this.state.photos[i] && !uploadedUrls[i]) {
+          this.setLoadingStatus('Upload blocked - packing photo ' + (i + 1) + ' into the link...');
+          try {
+            const thumb = await Share.makeThumbnailDataUrl(this.state.photos[i]);
+            if (!thumb) continue;
+            uploadedUrls[i] = thumb;
+            this.state.photoUrls_fromFiles = uploadedUrls;
+            const trialLength = Share.generateFullUrl(this.collectData()).length;
+            if (trialLength <= (Share.imageHost.maxEmbedLinkLength || 60000)) {
+              embedded++;
+              console.log('Photo ' + (i + 1) + ' embedded (' + thumb.length + ' chars)');
+            } else {
+              uploadedUrls[i] = null; // too big - would break sharing
+              console.warn('Photo ' + (i + 1) + ' too big to embed, skipped');
+            }
+          } catch (thumbErr) {
+            console.warn('Photo ' + (i + 1) + ' embed failed:', thumbErr && thumbErr.message);
+            if (thumbErr && /HEIC/i.test(thumbErr.message || '')) {
+              alert('One photo looks like an iPhone HEIC image, which browsers cannot display.\n\nPlease open the photo, take a screenshot of it, and use the screenshot instead (screenshots are JPEG and always work).');
+            }
+          }
+        }
+      }
+      this.state.photoUrls_fromFiles = uploadedUrls;
+
+      // Re-collect data with uploaded / embedded URLs
       const finalData = this.collectData();
-      console.log('Photo URLs for link:', finalData.photoUrls);
+      console.log('Photo URLs for link:', finalData.photoUrls.length);
 
       const hadFiles = this.state.photos.some(Boolean);
       if (hadFiles && finalData.photoUrls.length === 0) {
-        alert('Photo upload failed (the hosting service blocked the browser).\n\nEasiest fix - use the site gallery:\n1. Upload your photo to the assets/photos folder in your GitHub repo\n2. Click "Choose from site gallery" and tap your photo\n\nOr paste a link (Google Drive and Dropbox share links work too).\n\nYour link will still be created without photos.');
+        alert('Photos could not be added (uploads blocked and images too big to pack into the link).\n\nGuaranteed fix - use the site gallery:\n1. Upload your photo to the assets/photos folder in your GitHub repo\n2. Click "Choose from site gallery" and tap your photo\n\nOr paste a link (Google Drive and Dropbox share links work too).\n\nYour link will still be created without photos.');
       }
 
-      console.log('Generating URL...');
+      this.setLoadingStatus('Creating your link...');
       const fullUrl = Share.generateFullUrl(finalData);
       console.log('Full URL length:', fullUrl.length);
 
       const shortUrl = await Share.shortenUrl(fullUrl);
-      console.log('Short URL:', shortUrl);
 
       // Update share section
       document.getElementById('share-link').value = shortUrl;
       document.getElementById('qr-image').src = Share.getQrCodeUrl(shortUrl);
+      if (embedded > 0) {
+        document.querySelector('#section-share .section-subtitle').textContent =
+          'Share this link with the birthday person. Photos are packed inside this link - use the Copy button (the QR code may be too dense to scan).';
+      }
 
       this.showSection('share');
     } catch (err) {
       console.error('Error generating link:', err);
       alert('Error: ' + err.message + '. Please try again.');
     } finally {
+      this.setLoadingStatus('');
       document.getElementById('loading-overlay').style.display = 'none';
     }
   },
