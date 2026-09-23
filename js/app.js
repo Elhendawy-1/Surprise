@@ -100,11 +100,12 @@ const App = {
       });
     });
 
-    // Site gallery picker per slot
+    // Site gallery picker per slot (closest: clicks may land on the inner label span)
     document.querySelectorAll('.photo-gallery-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        this.openGalleryPicker(parseInt(e.target.dataset.slot));
+        const el = e.target.closest ? e.target.closest('.photo-gallery-btn') : btn;
+        this.openGalleryPicker(parseInt(el.dataset.slot));
       });
     });
 
@@ -794,7 +795,7 @@ const App = {
 
     // Chosen photos with captions, right before the message
     if (photos.length > 0) {
-      html += '<div style="font-family: var(--font-script); font-size: 1.8rem; margin-bottom: 1rem; opacity: 0; animation: fadeInUp 0.6s ease 0.5s forwards;">Sweet Memories</div>';
+      html += '<div style="font-family: var(--font-script); font-size: 1.8rem; margin-bottom: 1rem; opacity: 0; animation: fadeInUp 0.6s ease 0.5s forwards;">' + this.escapeHtml(t('galleryHeading', this.state.lang)) + '</div>';
       html += '<div style="display: flex; flex-direction: column; gap: 1.25rem; align-items: center; margin-bottom: 2rem;">';
       for (let i = 0; i < photos.length; i++) {
         if (!photos[i]) continue;
