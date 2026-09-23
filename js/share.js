@@ -274,37 +274,53 @@ const Share = {
     return baseUrl + '#' + encoded;
   },
 
+  fetchText(url, options, timeoutMs) {
+    return new Promise((resolve) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs || 8000);
+      fetch(url, Object.assign({ signal: controller.signal }, options || {}))
+        .then(response => {
+          clearTimeout(timeoutId);
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          const ct = response.headers.get('content-type') || '';
+          return (ct.indexOf('application/json') !== -1 ? response.json() : response.text())
+            .then(data => ({ data, timeoutId }));
+        })
+        .then(({ data, timeoutId }) => {
+          clearTimeout(timeoutId);
+          if (!data) return resolve(null);
+          const candidate = typeof data === 'string' ? data.trim() : (data.result_url || data.shorturl || data.link || '');
+          resolve(candidate && String(candidate).trim().startsWith('http') ? String(candidate).trim() : null);
+        })
+        .catch(() => {
+          clearTimeout(timeoutId);
+          resolve(null);
+        });
+    });
+  },
+
   async shortenUrl(longUrl) {
     // Short links make much sparser, easier-to-scan QR codes,
-    // so try two free shorteners before falling back to the long URL.
+    // so try several free shorteners before falling back to the long URL.
     if (longUrl.length < 200) return longUrl;
 
-    const services = [
-      'https://tinyurl.com/api-create.php?url=',
-      'https://is.gd/create.php?format=simple&url='
+    const encoded = encodeURIComponent(longUrl);
+    const attempts = [
+      { url: 'https://tinyurl.com/api-create.php?url=' + encoded },
+      { url: 'https://is.gd/create.php?format=simple&url=' + encoded },
+      {
+        url: 'https://cleanuri.com/api/v1/shorten',
+        options: {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'url=' + encoded
+        }
+      }
     ];
 
-    for (const base of services) {
+    for (const attempt of attempts) {
       try {
-        const shortUrl = await new Promise((resolve) => {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-          fetch(base + encodeURIComponent(longUrl), { signal: controller.signal })
-            .then(response => {
-              clearTimeout(timeoutId);
-              if (!response.ok) throw new Error('HTTP ' + response.status);
-              return response.text();
-            })
-            .then(text => {
-              const candidate = (text || '').trim();
-              resolve(candidate && candidate.startsWith('http') ? candidate : null);
-            })
-            .catch(() => {
-              clearTimeout(timeoutId);
-              resolve(null);
-            });
-        });
+        const shortUrl = await this.fetchText(attempt.url, attempt.options);
         if (shortUrl) return shortUrl;
       } catch (err) {
         console.warn('URL shortening failed:', err);
@@ -315,8 +331,9 @@ const Share = {
   },
 
   getQrCodeUrl(url) {
-    // Large size + quiet zone + explicit black-on-white for max scannability
-    return 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&qzone=2&ecc=M&color=0-0-0&bgcolor=255-255-255&data=' + encodeURIComponent(url);
+    // Big modules + wide quiet zone + low error correction + explicit
+    // black-on-white: the easiest possible code for phone cameras.
+    return 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&qzone=4&ecc=L&color=0-0-0&bgcolor=255-255-255&data=' + encodeURIComponent(url);
   },
 
   async copyToClipboard(text) {
