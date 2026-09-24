@@ -15,9 +15,7 @@ const App = {
     theme: 'classic',
     musicEnabled: true,
     photos: {},
-    photoTexts: {},
     photoUrls_fromFiles: {},
-    photoUrls_fromInput: {},
     photoSlotSeq: 0,
     songChoice: '',
     songChoiceName: '',
@@ -544,8 +542,9 @@ const App = {
         this.siteGallery.cache = imgs;
         this.renderGalleryPicker(imgs);
       })
-      .catch(() => {
-        status.textContent = t('galleryEmpty', this.state.lang);
+      .catch((err) => {
+        const limited = err && /403|429|rate/i.test(err.message || '');
+        status.textContent = t(limited ? 'rateLimited' : 'galleryEmpty', this.state.lang);
       });
   },
 
@@ -660,8 +659,9 @@ const App = {
         this.siteGallery.musicCache = songs;
         this.renderSongChoice(songs);
       })
-      .catch(() => {
-        status.textContent = t('songSiteEmpty', this.state.lang);
+      .catch((err) => {
+        const limited = err && /403|429|rate/i.test(err.message || '');
+        status.textContent = t(limited ? 'rateLimited' : 'songSiteEmpty', this.state.lang);
       });
   },
 
@@ -968,9 +968,9 @@ const App = {
         if (!uploadedUrls[i]) {
           this.setLoadingStatus(t('loadPacking', lang, { a: i + 1 }));
           let placed = false;
-          for (const t of tiers) {
+          for (const tier of tiers) {
             try {
-              const thumb = await Share.makeThumbnailDataUrl(this.state.photos[i], t.w, t.q);
+              const thumb = await Share.makeThumbnailDataUrl(this.state.photos[i], tier.w, tier.q);
               if (!thumb) continue;
               uploadedUrls[i] = thumb;
               this.state.photoUrls_fromFiles = uploadedUrls;
@@ -978,7 +978,7 @@ const App = {
               if (trialLength <= (Share.imageHost.maxEmbedLinkLength || 60000)) {
                 embedded++;
                 placed = true;
-                console.log('Photo ' + (i + 1) + ' embedded at ' + t.w + 'px (' + thumb.length + ' chars)');
+                console.log('Photo ' + (i + 1) + ' embedded at ' + tier.w + 'px (' + thumb.length + ' chars)');
                 break;
               }
               uploadedUrls[i] = null; // too big at this size - try smaller tier
@@ -1035,6 +1035,29 @@ const App = {
         if (qrDownload) {
           qrDownload.href = qrUrl;
           qrDownload.style.display = '';
+          // The download attribute is ignored cross-origin, so fetch
+          // the image as a blob for a real download; fall back to
+          // opening it in a new tab.
+          qrDownload.onclick = (e) => {
+            e.preventDefault();
+            fetch(qrUrl)
+              .then(r => {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.blob();
+              })
+              .then(blob => {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'birthday-gift-qr.png';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                  URL.revokeObjectURL(a.href);
+                  a.remove();
+                }, 1000);
+              })
+              .catch(() => window.open(qrUrl, '_blank'));
+          };
         }
         qrBox.style.display = '';
       } else {
@@ -1056,7 +1079,7 @@ const App = {
   // Escape HTML to avoid breaking markup
   escapeHtml(s) {
     if (!s) return '';
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   },
 
   // Render recipient view into a container (used for Preview)
@@ -1085,9 +1108,10 @@ const App = {
       html += '<div style="font-family: var(--font-script); font-size: 1.8rem; margin-bottom: 1rem; opacity: 0; animation: fadeInUp 0.6s ease 0.5s forwards;">' + this.escapeHtml(t('galleryHeading', this.state.lang)) + '</div>';
       html += '<div style="display: flex; flex-direction: column; gap: 1.25rem; align-items: center; margin-bottom: 2rem;">';
       for (let i = 0; i < photos.length; i++) {
-        if (!photos[i]) continue;
+        const safeUrl = Share.sanitizePhotoUrl(photos[i]);
+        if (!safeUrl) continue;
         html += `<div style="opacity: 0; animation: scaleIn 0.5s ease ${0.5 + i * 0.2}s forwards; max-width: 280px; width: 100%;">`;
-        html += `<img src="${photos[i]}" alt="Memory ${i + 1}" referrerpolicy="no-referrer" style="width: 100%; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 15px var(--shadow);" onerror="this.parentNode.style.display='none'">`;
+        html += `<img src="${this.escapeHtml(safeUrl)}" alt="Memory ${i + 1}" referrerpolicy="no-referrer" style="width: 100%; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 15px var(--shadow);" onerror="this.parentNode.style.display='none'">`;
         if (photoTexts[i]) {
           html += `<div style="font-size: 0.85rem; color: var(--text-light); font-style: italic; margin-top: 0.4rem;">${this.escapeHtml(photoTexts[i])}</div>`;
         }
@@ -1171,10 +1195,11 @@ const App = {
       let galleryHtml = '';
 
       for (let i = 0; i < photos.length; i++) {
-        if (!photos[i]) continue;
+        const safeUrl = Share.sanitizePhotoUrl(photos[i]);
+        if (!safeUrl) continue;
         const delay = i * 140;
         galleryHtml += `<div class="recipient-gallery-item" data-index="${i}" style="transition-delay:${delay}ms">`;
-        galleryHtml += `<img src="${photos[i]}" alt="Memory ${i + 1}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.style.display='none'">`;
+        galleryHtml += `<img src="${this.escapeHtml(safeUrl)}" alt="Memory ${i + 1}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.style.display='none'">`;
         if (photoTexts[i]) {
           galleryHtml += `<div class="gallery-item-text">${this.escapeHtml(photoTexts[i])}</div>`;
         }
@@ -1230,7 +1255,10 @@ const App = {
     // is the fallback if a stream fails.
     if (data.music !== false) {
       const musicEl = document.getElementById('bg-music');
-      const audioSource = musicEl.querySelector('source');
+      // Set src directly on <audio> (not via <source> child) so the
+      // error listener below fires reliably in all browsers.
+      const staleSource = musicEl.querySelector('source');
+      if (staleSource) staleSource.remove();
       const topicTracks = {
         birthday: [],
         valentine: ['https://upload.wikimedia.org/wikipedia/commons/3/3e/Audionautix-com-ccby-furelise.mp3'],
@@ -1244,8 +1272,7 @@ const App = {
         .concat(['assets/music/song.mp3']);
       let trackIdx = 0;
       const loadTrack = () => {
-        if (audioSource) audioSource.src = tracks[trackIdx];
-        else musicEl.src = tracks[trackIdx];
+        musicEl.src = tracks[trackIdx];
         musicEl.load();
       };
       const prompt = document.getElementById('music-prompt');
@@ -1542,10 +1569,9 @@ const App = {
       customMessage: '',
       theme: 'classic',
       musicEnabled: true,
-      photos: [null, null, null, null, null],
-      photoTexts: ['', '', '', '', ''],
-      photoUrls_fromFiles: [],
-      photoUrls_fromInput: ['', '', '', '', ''],
+      photos: {},
+      photoUrls_fromFiles: {},
+      photoSlotSeq: 0,
       selectedTheme: 'classic'
     };
 

@@ -2,12 +2,10 @@
 
 const Share = {
   imageHost: {
-    // CORS proxies tried in order (catbox has no CORS headers,
-    // so browser uploads must go through a proxy)
-    corsProxies: [
-      'https://api.allorigins.win/raw?url=',
-      'https://api.codetabs.com/v1/proxy?quest='
-    ],
+    // NOTE: verified by test (Nov 2026) that public CORS proxies do NOT
+    // forward multipart POST bodies (allorigins refetches via GET and drops
+    // the body; codetabs times out), so uploads go direct-only and fail
+    // fast on CORS errors. The thumbnail-embed fallback covers failures.
     // Hard cap: embedded thumbnails must keep the full link under this length
     maxEmbedLinkLength: 60000,
     services: {
@@ -134,35 +132,31 @@ const Share = {
 
   async uploadToService(serviceName, file) {
     const service = this.imageHost.services[serviceName];
-
-    // Build the multipart body fresh for every attempt
-    // (a used FormData cannot always be re-sent reliably)
-    const buildBody = () => {
-      const formData = new FormData();
-      if (service.formData) {
-        Object.entries(service.formData).forEach(([key, value]) => {
-          formData.append(key, value);
-        });
-      }
-      formData.append(service.fieldName, file, file.name || 'photo.jpg');
-      return formData;
-    };
-
-    const method = service.method || 'POST';
-    const targets = [service.uploadUrl].concat(
-      this.imageHost.corsProxies.map(p => p + encodeURIComponent(service.uploadUrl))
-    );
-
-    for (const target of targets) {
-      try {
-        const url = await this.doFetch(target, method, buildBody(), service);
-        if (url) return url;
-      } catch (err) {
-        console.warn(`Upload via ${target} failed:`, err.message);
-      }
+    const formData = new FormData();
+    if (service.formData) {
+      Object.entries(service.formData).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
     }
+    formData.append(service.fieldName, file, file.name || 'photo.jpg');
+
+    // Single direct attempt: CORS failures reject immediately, so this
+    // stays fast. On failure the caller falls back to link embedding.
+    const url = await this.doFetch(service.uploadUrl, service.method || 'POST', formData, service);
+    if (url) return url;
 
     throw new Error(`${serviceName} upload failed`);
+  },
+
+  // Photo URLs come from the share-link payload, i.e. untrusted input.
+  // Only allow safe schemes and reject anything that could break out
+  // of an HTML attribute. Returns '' for anything suspicious.
+  sanitizePhotoUrl(url) {
+    if (!url || typeof url !== 'string') return '';
+    const u = url.trim();
+    if (!/^(https?:\/\/|data:image\/)/i.test(u)) return '';
+    if (/["'<>\s]/.test(u)) return '';
+    return u;
   },
 
   doFetch(url, method, body, service) {
@@ -301,8 +295,10 @@ const Share = {
 
   async shortenUrl(longUrl) {
     // Short links make much sparser, easier-to-scan QR codes,
-    // so try several free shorteners before falling back to the long URL.
-    if (longUrl.length < 200) return longUrl;
+    // so try three free shorteners before falling back to the long URL.
+    // Links already short need nothing; huge packed-photo links would
+    // only burn ~16s of doomed shortener timeouts, so skip those too.
+    if (longUrl.length < 200 || longUrl.length > 8000) return longUrl;
 
     const encoded = encodeURIComponent(longUrl);
     const attempts = [
